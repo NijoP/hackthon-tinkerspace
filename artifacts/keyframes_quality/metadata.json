@@ -1,0 +1,106 @@
+{
+  "video": "WhatsApp Video 2026-10-03 at 22.46.42.mp4",
+  "width": 848,
+  "height": 480,
+  "fps": 29.97428204029147,
+  "duration_seconds": 77.76666666666667,
+  "strategy": "sharpest_frame_per_window_full_resolution",
+  "keyframes": [
+    {
+      "path": "artifacts\\keyframes_quality\\quality_keyframe_000_000.00s.jpg",
+      "timestamp_seconds": 0.0,
+      "frame_index": 0,
+      "sharpness_score": 59.11,
+      "width": 848,
+      "height": 480
+    },
+    {
+      "path": "artifacts\\keyframes_quality\\quality_keyframe_001_009.17s.jpg",
+      "timestamp_seconds": 9.175,
+      "frame_index": 275,
+      "sharpness_score": 90.11,
+      "width": 848,
+      "height": 480
+    },
+    {
+      "path": "artifacts\\keyframes_quality\\quality_keyframe_002_014.45s.jpg",
+      "timestamp_seconds": 14.446,
+      "frame_index": 433,
+      "sharpness_score": 90.75,
+      "width": 848,
+      "height": 480
+    },
+    {
+      "path": "artifacts\\keyframes_quality\\quality_keyframe_003_015.81s.jpg",
+      "timestamp_seconds": 15.814,
+      "frame_index": 474,
+      "sharpness_score": 88.73,
+      "width": 848,
+      "height": 480
+    },
+    {
+      "path": "artifacts\\keyframes_quality\\quality_keyframe_004_021.99s.jpg",
+      "timestamp_seconds": 21.986,
+      "frame_index": 659,
+      "sharpness_score": 130.45,
+      "width": 848,
+      "height": 480
+    },
+    {
+      "path": "artifacts\\keyframes_quality\\quality_keyframe_005_026.06s.jpg",
+      "timestamp_seconds": 26.056,
+      "frame_index": 781,
+      "sharpness_score": 129.6,
+      "width": 848,
+      "height": 480
+    },
+    {
+      "path": "artifacts\\keyframes_quality\\quality_keyframe_006_030.13s.jpg",
+      "timestamp_seconds": 30.126,
+      "frame_index": 903,
+      "sharpness_score": 105.79,
+      "width": 848,
+      "height": 480
+    },
+    {
+      "path": "artifacts\\keyframes_quality\\quality_keyframe_007_036.00s.jpg",
+      "timestamp_seconds": 35.998,
+      "frame_index": 1079,
+      "sharpness_score": 150.6,
+      "width": 848,
+      "height": 480
+    },
+    {
+      "path": "artifacts\\keyframes_quality\\quality_keyframe_008_040.07s.jpg",
+      "timestamp_seconds": 40.068,
+      "frame_index": 1201,
+      "sharpness_score": 111.18,
+      "width": 848,
+      "height": 480
+    },
+    {
+      "path": "artifacts\\keyframes_quality\\quality_keyframe_009_047.44s.jpg",
+      "timestamp_seconds": 47.441,
+      "frame_index": 1422,
+      "sharpness_score": 81.25,
+      "width": 848,
+      "height": 480
+    },
+    {
+      "path": "artifacts\\keyframes_quality\\quality_keyframe_010_053.01s.jpg",
+      "timestamp_seconds": 53.012,
+      "frame_index": 1589,
+      "sharpness_score": 119.13,
+      "width": 848,
+      "height": 480
+    },
+    {
+      "path": "artifacts\\keyframes_quality\\quality_keyframe_011_057.98s.jpg",
+      "timestamp_seconds": 57.983,
+      "frame_index": 1738,
+      "sharpness_score": 88.93,
+      "width": 848,
+      "height": 480
+    }
+  ]
+}

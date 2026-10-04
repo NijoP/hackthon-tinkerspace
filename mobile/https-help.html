@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mobile Camera - HTTPS Required</title>
+  <style>
+    :root { --bg:#020617; --panel:#111827; --text:#f8fafc; --muted:#94a3b8; --line:#334155; --green:#22c55e; --yellow:#eab308; --red:#ef4444; --blue:#38bdf8; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Segoe UI, Arial, sans-serif; padding:20px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px; max-width:500px; margin:0 auto; }
+    h1 { font-size:22px; margin:0 0 12px; }
+    .btn { display:block; width:100%; padding:14px; margin:10px 0; border-radius:10px; border:1px solid var(--line); font:inherit; font-weight:700; cursor:pointer; }
+    .btn.primary { background:#2563eb; color:white; }
+    .btn.secondary { background:#334155; color:var(--text); }
+    .code { background:#020617; padding:12px; border-radius:8px; font-family:monospace; word-break:break-all; margin:10px 0; }
+    .step { margin:12px 0; padding:10px; background:#0f172a; border-radius:8px; border-left:3px solid var(--blue); }
+    .warning { color:var(--yellow); font-weight:700; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>📱 Mobile Camera Access</h1>
+    <p class="warning">Camera requires HTTPS on most mobile browsers.</p>
+    
+    <p>You opened this via <code>http://</code>. For the camera to work, you must use <code>https://</code>.</p>
+
+    <div class="step">
+      <strong>Option 1: Try HTTPS version (recommended)</strong>
+      <div class="code" id="httpsUrl">Loading...</div>
+      <button class="btn primary" onclick="goHttps()">Open HTTPS Mobile Camera</button>
+    </div>
+
+    <div class="step">
+      <strong>Option 2: If HTTPS link fails (self-signed cert)</strong>
+      <ol>
+        <li>Click the HTTPS link above</li>
+        <li>Browser will show "Your connection is not private"</li>
+        <li>Click <strong>Advanced → Proceed to...</strong> (or similar)</li>
+        <li>Allow camera permission when asked</li>
+      </ol>
+    </div>
+
+    <div class="step">
+      <strong>Option 3: Use an IP Webcam app</strong>
+      <p>If browser camera doesn't work, install <em>IP Webcam</em> on Android, then use the laptop dashboard to view the stream.</p>
+    </div>
+
+    <p class="muted">Your laptop LAN IP: <span id="lanIp">detecting...</span></p>
+  </div>
+
+<script>
+  // Try to get the LAN IP from the URL or use a known one
+  const hostname = location.hostname;
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+  
+  // If we're on localhost, we can't easily know the LAN IP from here
+  // But we can try to use the current host if it's an IP
+  let lanIp = hostname;
+  if (isLocalhost) {
+    // Use a common pattern - the user should know their LAN IP
+    lanIp = "YOUR_LAPTOP_LAN_IP"; // Will be replaced if possible
+  }
+  
+  document.getElementById('lanIp').textContent = lanIp;
+  
+  const httpsUrl = `https://${lanIp}:8443/mobile/`;
+  document.getElementById('httpsUrl').textContent = httpsUrl;
+  
+  function goHttps() {
+    window.location.href = httpsUrl;
+  }
+  
+  // If somehow we got here via the main page, show help instead of breaking
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    document.body.innerHTML = '<div class="card"><h1>❌ Camera API Unavailable</h1><p>This browser does not support camera access. Try Chrome on Android.</p></div>';
+  }
+</script>
+</body>
+</html>

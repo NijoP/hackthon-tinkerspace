@@ -1,0 +1,1282 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>Kitchen Memory - Assistant Console</title>
+  <meta name="description" content="Local console for the Kitchen Memory assistant: live camera, voice conversation, kitchen memory and tea guidance." />
+  <link rel="stylesheet" href="vendor/phosphor/regular/style.css" />
+  <link rel="stylesheet" href="vendor/phosphor/fill/style.css" />
+  <style>
+    /*
+      Design read: operator console for a local, voice-first kitchen assistant that guides a
+      visually impaired person. Calm, trust-first. Dials: VARIANCE 4, MOTION 3, DENSITY 6.
+      Shape rule: containers 14px, controls 10px, the single talk button is circular.
+      One accent (saffron, the colour of brewed tea). Green/red appear only as real system state.
+    */
+    :root {
+      --bg: #101211;
+      --surface: #171a19;
+      --raised: #1e2220;
+      --line: #2a2f2c;
+      --line-soft: #222624;
+      --text: #eceeed;
+      --text-2: #b4bbb7;
+      --muted: #8a938e;
+      --accent: #efa43a;
+      --accent-ink: #1b1306;
+      --accent-soft: rgba(239, 164, 58, .12);
+      --ok: #5cb87c;
+      --bad: #e0675f;
+      --shadow: 0 1px 0 rgba(255,255,255,.03) inset, 0 12px 32px -18px rgba(4, 8, 6, .8);
+      --r-box: 14px;
+      --r-ctl: 10px;
+      --font: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+      --font-display: "Segoe UI Variable Display", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+      --mono: "Cascadia Mono", "Cascadia Code", Consolas, ui-monospace, monospace;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f2f3f2;
+        --surface: #fbfbfa;
+        --raised: #f1f2f0;
+        --line: #d9dcd9;
+        --line-soft: #e6e8e5;
+        --text: #161b18;
+        --text-2: #3d4541;
+        --muted: #5f6863;
+        --accent: #b9690b;
+        --accent-ink: #fffaf2;
+        --accent-soft: rgba(185, 105, 11, .10);
+        --ok: #23804a;
+        --bad: #b8332c;
+        --shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 12px 30px -20px rgba(40, 52, 45, .35);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 var(--font); -webkit-font-smoothing: antialiased; }
+    .ph, .ph-fill { font-size: 18px; line-height: 1; }
+    button, input, select { font: inherit; color: inherit; }
+    a { color: var(--accent); }
+    .num { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 13px; }
+    .muted { color: var(--muted); }
+    .skip { position: absolute; left: -999px; top: 8px; background: var(--accent); color: var(--accent-ink); padding: 8px 12px; border-radius: var(--r-ctl); }
+    .skip:focus { left: 12px; z-index: 30; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* ---------- top bar ---------- */
+    .topbar { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line-soft); }
+    .topbar-inner { max-width: 1480px; margin: 0 auto; height: 64px; padding: 0 24px; display: flex; align-items: center; gap: 28px; }
+    .brand { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+    .brand strong { font: 600 18px/1 var(--font-display); letter-spacing: -.01em; }
+    .brand span { color: var(--muted); font-size: 13px; }
+    .health { display: flex; gap: 4px; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
+    .health-item { display: flex; align-items: center; gap: 7px; padding: 6px 10px; border-radius: var(--r-ctl); color: var(--text-2); font-size: 13px; white-space: nowrap; }
+    .health-item .ph { font-size: 16px; color: var(--muted); }
+    .health-item b { font-weight: 600; color: var(--text); }
+    .state-ok b { color: var(--ok); }
+    .state-bad b { color: var(--bad); }
+    .state-idle b { color: var(--muted); font-weight: 500; }
+
+    /* ---------- layout ---------- */
+    main { max-width: 1480px; margin: 0 auto; padding: 20px 24px 48px; display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); }
+    /* The sticky conversation panel lives inside .top-row, so it can never slide over the memory section. */
+    .top-row { display: grid; gap: 20px; grid-template-columns: minmax(0, 1.7fr) minmax(360px, 1fr); align-items: start; }
+    .col-left { display: grid; gap: 20px; min-width: 0; }
+    .panel { background: var(--surface); border: 1px solid var(--line-soft); border-radius: var(--r-box); box-shadow: var(--shadow); }
+    .panel-head { display: flex; align-items: center; gap: 12px; padding: 16px 18px 0; }
+    .panel-head h2 { margin: 0; font: 600 16px/1.3 var(--font-display); letter-spacing: -.005em; }
+    .panel-head .aside { margin-left: auto; color: var(--muted); font-size: 13px; }
+    .panel-body { padding: 14px 18px 18px; }
+
+    /* ---------- camera ---------- */
+    #camera-panel { min-width: 0; }
+    .seg { display: inline-flex; background: var(--raised); border: 1px solid var(--line-soft); border-radius: var(--r-ctl); padding: 3px; gap: 2px; }
+    .seg button { border: 0; background: transparent; padding: 6px 12px; border-radius: 7px; color: var(--text-2); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; transition: background .2s, color .2s; }
+    .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+    .viewport { position: relative; aspect-ratio: 16 / 9; background: #0b0c0c; border-radius: var(--r-ctl); overflow: hidden; }
+    .camera { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: transparent; }
+    /* Portrait phone video inside the 16:9 frame: blurred copy of the same stream fills the side bars. */
+    .backdrop { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(28px) brightness(.45) saturate(1.1); transform: scale(1.15); display: none; pointer-events: none; }
+    .viewport.portrait.rtc .backdrop { display: block; }
+    .viewport.fill .camera { object-fit: cover; }
+    /* Sideways phone with auto-rotate locked: turn the portrait frame upright. The element box is
+       swapped (9:16 of a 16:9 frame) so that after rotation it exactly covers the viewport. */
+    .viewport.rot90 .rtc-media, .viewport.rot270 .rtc-media { inset: auto; left: 50%; top: 50%; width: 56.25%; height: 177.78%; }
+    .viewport.rot90 .camera.rtc-media { transform: translate(-50%, -50%) rotate(90deg); }
+    .viewport.rot270 .camera.rtc-media { transform: translate(-50%, -50%) rotate(-90deg); }
+    .viewport.rot180 .camera.rtc-media { transform: rotate(180deg); }
+    .viewport.rot90 .backdrop { transform: translate(-50%, -50%) rotate(90deg) scale(1.15); }
+    .viewport.rot270 .backdrop { transform: translate(-50%, -50%) rotate(-90deg) scale(1.15); }
+    .viewport.rot180 .backdrop { transform: rotate(180deg) scale(1.15); }
+    .viewport.fill .backdrop { display: none !important; }
+    .view-tools { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+    .orient-hint { display: none; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--text-2); }
+    .orient-hint .ph { color: var(--accent); }
+    .orient-hint.show { display: flex; }
+    #no-visual { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #9aa39e; text-align: center; padding: 24px; }
+    #no-visual .ph { font-size: 34px; color: #6f7873; }
+    #no-visual strong { color: #d8dcda; font-weight: 600; font-size: 16px; }
+    #no-visual p { margin: 0; max-width: 46ch; font-size: 14px; }
+    .readout { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin-top: 12px; background: var(--line-soft); border-radius: var(--r-ctl); overflow: hidden; }
+    .readout div { background: var(--raised); padding: 9px 12px; }
+    .readout span { display: block; color: var(--muted); font-size: 12px; }
+    .sees { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
+    .sees .ph { font-size: 20px; color: var(--accent); margin-top: 2px; }
+    #vlm-summary { margin: 0; font-size: 15px; color: var(--text); max-width: 75ch; }
+    #vlm-objects, #vlm-meta { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+
+    /* ---------- conversation ---------- */
+    #talk-panel { display: flex; flex-direction: column; position: sticky; top: 84px; height: min(calc(100dvh - 104px), 880px); min-height: 520px; overflow: hidden; }
+    #talk-panel .panel-head { position: relative; z-index: 1; background: var(--surface); padding-bottom: 12px; border-bottom: 1px solid var(--line-soft); border-radius: var(--r-box) var(--r-box) 0 0; }
+    .head-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .btn.ghost { border-color: transparent; background: transparent; color: var(--muted); padding: 4px 8px; font-size: 13px; }
+    .btn.ghost:hover { color: var(--text); border-color: var(--line); }
+    .voice-state { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+    .voice-state.live { color: var(--accent); }
+    .thread { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 18px; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
+    .msg { max-width: 92%; }
+    .msg .who { font-size: 12px; color: var(--muted); margin-bottom: 3px; display: flex; gap: 8px; }
+    .msg .bubble { padding: 10px 13px; border-radius: var(--r-ctl); line-height: 1.5; }
+    .msg.user { align-self: flex-end; text-align: right; }
+    .msg.user .who { justify-content: flex-end; }
+    .msg.user .bubble { background: var(--raised); border: 1px solid var(--line-soft); text-align: left; }
+    .msg.bot .bubble { background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent); font-size: 16px; }
+    .msg.bot.safety .bubble { border-color: color-mix(in srgb, var(--bad) 45%, transparent); background: color-mix(in srgb, var(--bad) 10%, transparent); }
+    .msg.note { align-self: center; color: var(--muted); font-size: 13px; }
+    .msg.pending .bubble { color: var(--muted); }
+    .empty-talk { margin-top: auto; padding: 8px 2px; }
+    .empty-talk h3 { margin: 0 0 6px; font: 600 20px/1.25 var(--font-display); letter-spacing: -.01em; }
+    .empty-talk p { margin: 0 0 14px; color: var(--text-2); max-width: 40ch; }
+    .suggest { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+    .suggest button { border: 1px solid var(--line-soft); background: var(--raised); border-radius: var(--r-ctl); padding: 8px 12px; cursor: pointer; color: var(--text-2); text-align: left; transition: border-color .2s, color .2s, transform .1s; }
+    .suggest button:hover { border-color: var(--accent); color: var(--text); }
+    .suggest button:active, .btn:active, .mic:active { transform: translateY(1px); }
+    .talk-foot { border-top: 1px solid var(--line-soft); padding: 16px 18px 18px; display: grid; gap: 14px; }
+    .mic-row { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; }
+    .mic { width: 68px; height: 68px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-ink); cursor: pointer; display: grid; place-items: center; position: relative; transition: transform .1s, background .2s; }
+    .mic .ph-fill { font-size: 28px; }
+    .mic:disabled { opacity: .55; cursor: wait; }
+    .mic[data-state="listening"] { background: var(--bad); color: #fff; }
+    .mic[data-state="listening"]::after { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid var(--bad); opacity: .6; }
+    @media (prefers-reduced-motion: no-preference) {
+      .mic[data-state="listening"]::after { animation: ring 1.4s ease-out infinite; }
+      @keyframes ring { from { transform: scale(.9); opacity: .7; } to { transform: scale(1.25); opacity: 0; } }
+      .msg { animation: rise .28s cubic-bezier(.16, 1, .3, 1); }
+      @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    }
+    .mic-copy strong { display: block; font-weight: 600; }
+    .mic-copy span { color: var(--muted); font-size: 13px; }
+    .toggles { display: flex; gap: 18px; flex-wrap: wrap; }
+    .switch { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); cursor: pointer; user-select: none; }
+    .switch input { appearance: none; width: 32px; height: 18px; border-radius: 9px; background: var(--line); position: relative; cursor: pointer; transition: background .2s; margin: 0; }
+    .switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--text); transition: transform .2s cubic-bezier(.16, 1, .3, 1); }
+    .switch input:checked { background: var(--accent); }
+    .switch input:checked::after { transform: translateX(14px); background: var(--accent-ink); }
+    .composer { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+    .field { width: 100%; background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-ctl); padding: 10px 12px; color: var(--text); }
+    .field::placeholder { color: var(--muted); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: var(--r-ctl); border: 1px solid var(--line); background: var(--raised); padding: 9px 13px; cursor: pointer; white-space: nowrap; transition: border-color .2s, background .2s, transform .1s; }
+    .btn:hover { border-color: var(--muted); }
+    .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn.icon { padding: 9px 11px; }
+    .label-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+    /* ---------- task ---------- */
+    #task-panel { min-width: 0; }
+    .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; counter-reset: s; }
+    .steps li { padding: 12px; border-radius: var(--r-ctl); background: var(--raised); border: 1px solid var(--line-soft); min-height: 84px; display: flex; flex-direction: column; gap: 8px; }
+    .steps li .ph { font-size: 20px; color: var(--muted); }
+    .steps li strong { font-weight: 600; font-size: 14px; }
+    .steps li.done { opacity: .6; }
+    .steps li.done .ph { color: var(--ok); }
+    .steps li.current { border-color: var(--accent); background: var(--accent-soft); }
+    .steps li.current .ph { color: var(--accent); }
+    .loop { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+    .loop h3 { margin: 0 0 4px; font-size: 12px; font-weight: 500; color: var(--muted); }
+    .loop p { margin: 0; color: var(--text); }
+    .task-meta { color: var(--muted); font-size: 13px; }
+
+    /* ---------- memory ---------- */
+    #memory-panel { min-width: 0; }
+    .mem-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+    .fact { display: grid; grid-template-columns: 112px 1fr; gap: 12px; align-items: start; padding: 10px; border-radius: var(--r-ctl); background: var(--raised); border: 1px solid var(--line-soft); cursor: pointer; text-align: left; width: 100%; transition: border-color .2s, transform .1s; }
+    .fact:hover { border-color: var(--accent); }
+    .fact:active { transform: translateY(1px); }
+    .fact img { width: 112px; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 7px; background: var(--line-soft); display: block; }
+    .fact strong { display: block; font-weight: 600; text-transform: capitalize; }
+    .fact p { margin: 2px 0 6px; font-size: 13px; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .fact .meta { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--muted); }
+    .fact .meta span { white-space: nowrap; }
+    .fact .meta .num { font-size: 12px; }
+    .unknown-row { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+    .unknown-row span.item { border: 1px dashed var(--line); border-radius: var(--r-ctl); padding: 4px 10px; color: var(--text-2); text-transform: capitalize; }
+    .skeleton { background: linear-gradient(90deg, var(--raised), var(--line-soft), var(--raised)); background-size: 200% 100%; border-radius: var(--r-ctl); height: 92px; }
+    @media (prefers-reduced-motion: no-preference) { .skeleton { animation: shimmer 1.4s linear infinite; } @keyframes shimmer { to { background-position: -200% 0; } } }
+
+    /* ---------- diagnostics ---------- */
+    #diag-panel { min-width: 0; }
+    details summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 16px 18px; }
+    details summary::-webkit-details-marker { display: none; }
+    details summary h2 { margin: 0; font: 600 16px/1.3 var(--font-display); }
+    details summary .ph.caret { margin-left: auto; transition: transform .2s; color: var(--muted); }
+    details[open] summary .ph.caret { transform: rotate(180deg); }
+    .diag { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 24px; padding: 0 18px 18px; }
+    .diag h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
+    .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 13px; }
+    .kv dt { color: var(--muted); }
+    .kv dd { margin: 0; text-align: right; }
+    .stack { display: grid; gap: 8px; }
+    .stack label { font-size: 12px; color: var(--muted); }
+    .row-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .banner { padding: 9px 12px; border-radius: var(--r-ctl); font-size: 13px; border: 1px solid var(--line); background: var(--raised); }
+    .banner.err { border-color: color-mix(in srgb, var(--bad) 50%, transparent); color: var(--bad); }
+    #audio-result { margin: 0; font-size: 14px; }
+    #audio-stats { margin: 0; font-size: 12px; color: var(--muted); }
+
+    @media (max-width: 1100px) {
+      .top-row { grid-template-columns: 1fr; }
+      #talk-panel { position: static; height: 620px; }
+      .diag { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .topbar-inner { padding: 0 14px; gap: 12px; }
+      .brand span { display: none; }
+      main { padding: 14px; }
+      .readout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .loop { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#talk-panel">Skip to conversation</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><strong>Kitchen Memory</strong><span>Assistant console</span></div>
+      <nav class="health" aria-label="System health">
+        <div class="health-item" id="h-server" title="Local FastAPI server"><i class="ph ph-cpu"></i>Server <b id="server-status">...</b></div>
+        <div class="health-item" id="h-phone" title="Phone camera"><i class="ph ph-device-mobile"></i>Phone <b id="mobile-camera-status">...</b></div>
+        <div class="health-item" id="h-esp" title="ESP32 camera"><i class="ph ph-video-camera"></i>ESP32 <b id="camera-status">...</b></div>
+        <div class="health-item" id="h-mic" title="Laptop microphone"><i class="ph ph-microphone"></i>Mic <b id="mic-status">...</b></div>
+        <div class="health-item" id="h-speaker" title="Laptop speaker"><i class="ph ph-speaker-high"></i>Speaker <b id="speaker-status">...</b></div>
+        <div class="health-item" id="h-vision" title="Local vision model"><i class="ph ph-eye"></i>Vision <b id="vlm-status">...</b></div>
+        <div class="health-item" id="h-memory" title="Kitchen knowledge graph"><i class="ph ph-graph"></i>Memory <b id="ai-status">...</b></div>
+        <div class="health-item" id="h-person" title="Person detection on the kitchen camera"><i class="ph ph-person"></i>Person <b id="person-status">...</b></div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="top-row">
+    <div class="col-left">
+    <!-- Live camera -->
+    <section class="panel" id="camera-panel" aria-labelledby="camera-title">
+      <div class="panel-head">
+        <h2 id="camera-title">Live view</h2>
+        <div class="view-tools">
+          <div class="seg" role="group" aria-label="Picture fit">
+            <button id="fit-btn" aria-pressed="true" onclick="setFitMode('fit')" title="Show the whole picture"><i class="ph ph-frame-corners"></i>Fit</button>
+            <button id="fill-btn" aria-pressed="false" onclick="setFitMode('fill')" title="Crop to fill the 16:9 frame"><i class="ph ph-arrows-out"></i>Fill</button>
+            <button id="rotate-btn" aria-pressed="false" onclick="rotateManually()" title="Turn the phone picture 90 degrees if it looks sideways"><i class="ph ph-arrow-clockwise"></i>Rotate</button>
+          </div>
+          <div class="seg" role="group" aria-label="Camera source">
+            <button id="mobile-source" aria-pressed="false" onclick="setCameraSource('mobile')"><i class="ph ph-device-mobile"></i>Phone</button>
+            <button id="esp-source" aria-pressed="false" onclick="setCameraSource('esp32')"><i class="ph ph-video-camera"></i>ESP32</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="viewport" id="camera-container">
+          <video id="camera-backdrop" class="backdrop rtc-media" autoplay playsinline muted disablepictureinpicture aria-hidden="true"></video>
+          <img id="camera" class="camera" alt="Live kitchen camera" />
+          <video id="camera-video" class="camera rtc-media" autoplay playsinline muted disablepictureinpicture style="display:none"></video>
+          <div id="no-visual" role="status">
+            <i class="ph ph-video-camera"></i>
+            <strong id="no-visual-title">Waiting for the camera</strong>
+            <p id="no-visual-hint">On the phone, open the camera page and tap Start Camera. The picture appears here within a second.</p>
+          </div>
+        </div>
+        <p class="orient-hint" id="orient-hint" role="status"><i class="ph ph-device-rotate"></i><span>The phone is upright, so the picture is portrait. Turn the phone sideways for a full-width view, or choose Fill to crop.</span></p>
+        <div class="readout" aria-label="Stream quality">
+          <div><span>Frame rate</span><b class="num" id="camera-fps">-</b></div>
+          <div><span>Delay estimate</span><b class="num" id="rtc-latency-short">-</b></div>
+          <div><span>Network round trip</span><b class="num" id="rtc-rtt">-</b></div>
+          <div><span>Link</span><b class="num" id="rtc-link">-</b></div>
+        </div>
+        <div class="sees">
+          <i class="ph ph-eye"></i>
+          <div>
+            <p id="vlm-summary">The vision model is not running yet.</p>
+            <p id="vlm-objects"></p>
+            <p id="vlm-meta"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tea task -->
+    <section class="panel" id="task-panel" aria-labelledby="task-title">
+      <div class="panel-head">
+        <h2 id="task-title">Tea guidance</h2>
+        <span class="aside" id="assistant-task-line">Live assistant <b id="assistant-status">...</b></span>
+      </div>
+      <div class="panel-body">
+        <ol class="steps" id="steps">
+          <li data-i="0"><i class="ph ph-drop"></i><strong>Find the glass</strong></li>
+          <li data-i="1"><i class="ph ph-coffee"></i><strong>Find the kettle</strong></li>
+          <li data-i="2"><i class="ph ph-cube"></i><strong>Find the sugar</strong></li>
+          <li data-i="3"><i class="ph ph-drop-half"></i><strong>Add water</strong></li>
+          <li data-i="4"><i class="ph ph-fire-simple"></i><strong>Heat and pour</strong></li>
+          <li data-i="5"><i class="ph ph-tea-bag"></i><strong>Mix and finish</strong></li>
+        </ol>
+        <div class="loop">
+          <div><h3>Last heard by the live assistant</h3><p id="assistant-transcript">Nothing yet.</p></div>
+          <div><h3>Last spoken by the live assistant</h3><p id="assistant-answer">Nothing yet.</p></div>
+        </div>
+        <p class="task-meta" style="margin:14px 0 0">Steps advance from the live assistant loop when the user says "I want to make tea". The task engine decides each step, not the language model.</p>
+        <span id="assistant-user" hidden></span><span id="assistant-task" hidden></span><span id="assistant-step" hidden></span>
+      </div>
+    </section>
+
+    </div>
+
+    <!-- Conversation -->
+    <section class="panel" id="talk-panel" aria-labelledby="talk-title">
+      <div class="panel-head">
+        <h2 id="talk-title">Talk to the assistant</h2>
+        <div class="head-actions">
+          <span class="voice-state" id="voice-state" role="status" aria-live="polite"><i class="ph ph-ear"></i><span id="voice-state-text">Ready</span></span>
+          <button class="btn ghost" id="clear-btn" onclick="clearChat()" title="Clear the conversation"><i class="ph ph-trash"></i>Clear</button>
+        </div>
+      </div>
+      <div class="thread" id="thread" aria-live="polite">
+        <div class="empty-talk" id="empty-talk">
+          <h3>Ask anything, out loud or by typing.</h3>
+          <p>Questions about where things are come from kitchen memory. Everything else is answered with the live camera view in mind. Replies are spoken on the laptop speaker.</p>
+          <div class="suggest">
+            <button onclick="sendText('Hey, I am at the kitchen.')">Hey, I am at the kitchen.</button>
+            <button onclick="sendText('Where is the kettle?')">Where is the kettle?</button>
+            <button onclick="sendText('What do you see right now?')">What do you see right now?</button>
+            <button onclick="sendText('Where are the glasses?')">Where are the glasses?</button>
+            <button onclick="sendText('How do I make tea safely?')">How do I make tea safely?</button>
+          </div>
+        </div>
+      </div>
+      <div class="talk-foot">
+        <div class="mic-row">
+          <button class="mic" id="mic-btn" data-state="idle" onclick="talkOnce()" aria-describedby="mic-help"><i class="ph-fill ph-microphone"></i><span class="label-sr">Talk</span></button>
+          <div class="mic-copy">
+            <strong id="mic-title">Tap to talk</strong>
+            <span id="mic-help">Speak after the beep. Press Space anywhere outside a text box.</span>
+          </div>
+        </div>
+        <div class="toggles">
+          <label class="switch"><input type="checkbox" id="ask-speak" checked /> Speak replies</label>
+          <label class="switch"><input type="checkbox" id="handsfree" onchange="toggleHandsFree()" /> Hands-free</label>
+          <label class="switch" title="When the camera sees someone come in, start listening so they can say: Hey, I am at the kitchen"><input type="checkbox" id="entry-listen" onchange="setEntryListen(this.checked)" checked /> Listen on entry</label>
+          <button class="btn icon" onclick="repeatLast()" title="Say the last answer again" style="margin-left:auto;padding:4px 10px;font-size:13px"><i class="ph ph-arrow-clockwise"></i>Repeat</button>
+        </div>
+        <form class="composer" onsubmit="event.preventDefault(); sendText(document.getElementById('ask-input').value)">
+          <label class="label-sr" for="ask-input">Type a question</label>
+          <input class="field" id="ask-input" autocomplete="off" placeholder="Type a question" />
+          <button class="btn primary icon" type="submit" aria-label="Send"><i class="ph ph-paper-plane-right"></i></button>
+        </form>
+      </div>
+    </section>
+
+    </div>
+
+    <!-- Kitchen memory -->
+    <section class="panel" id="memory-panel" aria-labelledby="memory-title">
+      <div class="panel-head">
+        <h2 id="memory-title">Kitchen memory</h2>
+        <span class="aside" id="memory-aside">Learned from the narrated walkthrough. Select an item to ask where it is.</span>
+      </div>
+      <div class="panel-body">
+        <div class="mem-grid" id="objects">
+          <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+        </div>
+        <div class="unknown-row" id="unknown-row" hidden></div>
+      </div>
+    </section>
+
+    <!-- Diagnostics -->
+    <section class="panel" id="diag-panel">
+      <details id="diag">
+        <summary><i class="ph ph-sliders-horizontal"></i><h2>Diagnostics and audio setup</h2><i class="ph ph-caret-down caret"></i></summary>
+        <div class="diag">
+          <div>
+            <h3>Audio devices</h3>
+            <div id="audio-banner" class="banner" style="display:none"></div>
+            <div class="stack">
+              <dl class="kv"><dt>Audio backend</dt><dd id="audio-backend">checking</dd></dl>
+              <label for="mic-select">Microphone (used for talking)</label>
+              <select id="mic-select" class="field"><option>-</option></select>
+              <label for="speaker-select">Speaker (used for replies)</label>
+              <select id="speaker-select" class="field"><option>-</option></select>
+              <label for="speaker-text">Speaker test phrase</label>
+              <input id="speaker-text" class="field" value="Hello. The laptop speaker is working." />
+              <div class="row-btns">
+                <button class="btn" id="speaker-test-btn" onclick="testSpeaker()"><i class="ph ph-speaker-high"></i>Test speaker</button>
+                <button class="btn" id="mic-test-btn" onclick="testMic()"><i class="ph ph-microphone"></i>Test mic</button>
+                <button class="btn" id="warmup-btn" onclick="warmUpAudio()"><i class="ph ph-lightning"></i>Warm up</button>
+                <button class="btn" onclick="loadAudioDevices()"><i class="ph ph-arrow-clockwise"></i>Refresh</button>
+              </div>
+              <p id="audio-result">No audio test run yet.</p>
+              <p id="audio-stats"></p>
+              <audio id="audio-playback" controls style="width:100%;display:none"></audio>
+            </div>
+          </div>
+          <div>
+            <h3>Video link</h3>
+            <dl class="kv">
+              <dt>Transport</dt><dd class="num" id="rtc-transport">-</dd>
+              <dt>Codec and size</dt><dd class="num" id="rtc-codec">-</dd>
+              <dt>Jitter buffer + decode</dt><dd class="num" id="rtc-buffer">-</dd>
+              <dt>Network + playout</dt><dd class="num" id="rtc-latency">-</dd>
+              <dt>Dropped / lost</dt><dd class="num" id="rtc-loss">-</dd>
+              <dt>Server frame age</dt><dd class="num" id="frame-age">-</dd>
+            </dl>
+            <p class="muted" style="font-size:12px;margin:12px 0 0">Add <span class="num">?jb=0</span> to the address for the lowest playout delay. It may stutter on weak Wi-Fi.</p>
+          </div>
+          <div>
+            <h3>Vision model and links</h3>
+            <dl class="kv">
+              <dt>Model</dt><dd class="num" id="vlm-model">-</dd>
+              <dt>Inference time</dt><dd class="num" id="vlm-latency">-</dd>
+              <dt>LAN address</dt><dd class="num" id="lan-url">-</dd>
+            </dl>
+            <p id="vlm-privacy" class="muted" style="font-size:12px;margin:12px 0"></p>
+            <div class="row-btns">
+              <a class="btn" href="/mobile/" target="_blank" rel="noopener"><i class="ph ph-device-mobile"></i>Phone page</a>
+              <a class="btn" href="/api/latest.jpg" target="_blank" rel="noopener"><i class="ph ph-image"></i>ESP32 snapshot</a>
+              <a class="btn" href="/api/stream" target="_blank" rel="noopener"><i class="ph ph-broadcast"></i>ESP32 stream</a>
+            </div>
+          </div>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <script>
+    // ======================================================================
+    // Status helpers
+    // ======================================================================
+    function healthState(itemId, status) {
+      const el = document.getElementById(itemId);
+      if (!el) return;
+      el.classList.remove('state-ok', 'state-bad', 'state-idle');
+      const s = String(status || '').toUpperCase();
+      if (['RUNNING', 'CONNECTED', 'READY', 'LIVE', 'AVAILABLE'].includes(s)) el.classList.add('state-ok');
+      else if (['OFFLINE', 'ERROR', 'NO_GRAPH'].includes(s)) el.classList.add('state-bad');
+      else el.classList.add('state-idle');
+    }
+    function pretty(status) {
+      const s = String(status || '').toUpperCase();
+      return ({ RUNNING: 'Running', CONNECTED: 'Live', READY: 'Ready', AVAILABLE: 'Ready', OFFLINE: 'Offline',
+        ERROR: 'Error', NO_GRAPH: 'Missing', NOT_STARTED: 'Off', WAITING_FOR_CAMERA: 'Waiting', LIVE: 'Live' })[s]
+        || (s ? s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, ' ') : '-');
+    }
+    function setHealth(itemId, valueId, status) {
+      document.getElementById(valueId).textContent = pretty(status);
+      healthState(itemId, status);
+    }
+
+    // ======================================================================
+    // Camera: WebRTC (phone, low latency) + JPEG fallback + ESP32 MJPEG
+    // ======================================================================
+    let cameraSource = localStorage.getItem('cameraSource') || 'mobile';
+    let lastFrameId = -1;
+    let lastFrameAt = performance.now();
+    let fpsEstimate = 0;
+    let imageLoading = false;
+    let mobileSocket = null;
+    let mobileLastReceivedAt = 0;
+    let mobileObjectUrl = null;
+    let mobileSocketConnected = false;
+
+    function selectedFrameInfo(data) {
+      return cameraSource === 'mobile' ? data.latest_mobile_frame : data.latest_frame;
+    }
+
+    function selectedFrameUrl(frameId) {
+      const base = cameraSource === 'mobile'
+        ? `https://${window.location.hostname}:8443/api/mobile/latest.jpg`
+        : '/api/latest.jpg';
+      return `${base}?frame_id=${frameId}&t=${Date.now()}`;
+    }
+
+    function showNoVisual(show) {
+      document.getElementById('no-visual').style.display = show ? 'flex' : 'none';
+      document.getElementById('camera').style.visibility = show || rtcLive ? 'hidden' : 'visible';
+      document.getElementById('camera-video').style.display = !show && rtcLive ? 'block' : 'none';
+      document.getElementById('camera-container').classList.toggle('rtc', !show && rtcLive);
+      if (show) setPortrait(false);
+      if (show) {
+        const phone = cameraSource === 'mobile';
+        document.getElementById('no-visual-title').textContent = phone ? 'Waiting for the phone camera' : 'Waiting for the ESP32 camera';
+        document.getElementById('no-visual-hint').textContent = phone
+          ? 'On the phone, open the camera page and tap Start Camera. The picture appears here within a second.'
+          : 'Power the ESP32 board and check it is on the same Wi-Fi. Frames arrive on the HTTP server (port 8000).';
+      }
+    }
+
+    function closeMobileSocket() {
+      if (mobileSocket) { mobileSocket.onclose = null; mobileSocket.onmessage = null; mobileSocket.close(); mobileSocket = null; }
+      mobileSocketConnected = false;
+      if (mobileObjectUrl) { URL.revokeObjectURL(mobileObjectUrl); mobileObjectUrl = null; }
+    }
+
+    function connectMobileSocket() {
+      closeMobileSocket();
+      mobileSocket = new WebSocket(`wss://${window.location.hostname}:8443/ws/mobile`);
+      mobileSocket.binaryType = 'blob';
+      mobileSocket.onopen = () => { mobileSocketConnected = true; };
+      let previousMobileFrameAt = 0;
+      mobileSocket.onmessage = event => {
+        if (cameraSource !== 'mobile' || rtcLive) return;
+        const now = performance.now();
+        if (previousMobileFrameAt) {
+          const fps = 1000 / (now - previousMobileFrameAt);
+          fpsEstimate = fpsEstimate ? fpsEstimate * 0.75 + fps * 0.25 : fps;
+          document.getElementById('camera-fps').textContent = `${fpsEstimate.toFixed(1)} fps`;
+        }
+        previousMobileFrameAt = now;
+        if (mobileObjectUrl) URL.revokeObjectURL(mobileObjectUrl);
+        mobileObjectUrl = URL.createObjectURL(event.data);
+        document.getElementById('camera').src = mobileObjectUrl;
+        showNoVisual(false);
+        mobileLastReceivedAt = now;
+      };
+      mobileSocket.onerror = () => { mobileSocketConnected = false; };
+      mobileSocket.onclose = () => { mobileSocketConnected = false; if (cameraSource === 'mobile' && !rtcLive) showNoVisual(true); };
+    }
+
+    // ---------------- WebRTC viewer ----------------
+    const JB_PARAM = new URLSearchParams(location.search).get('jb');
+    let rtcSignal = null, rtcPc = null, rtcLive = false, rtcChain = Promise.resolve();
+    let rtcStatsTimer = null, rtcFallbackTimer = null, rtcPrev = null;
+
+    function rtcSend(msg) {
+      if (rtcSignal && rtcSignal.readyState === WebSocket.OPEN) rtcSignal.send(JSON.stringify(msg));
+    }
+    function setLink(text) { document.getElementById('rtc-link').textContent = text; }
+
+    function setRtcLive(live) {
+      rtcLive = live;
+      if (live) { closeMobileSocket(); clearTimeout(rtcFallbackTimer); setLink('WebRTC direct'); }
+      showNoVisual(!live && !mobileSocketConnected);
+    }
+
+    function closeRtcPeer() {
+      if (rtcPc) { try { rtcPc.close(); } catch (e) {} rtcPc = null; }
+      clearInterval(rtcStatsTimer); rtcStatsTimer = null; rtcPrev = null;
+      document.getElementById('camera-video').srcObject = null;
+      document.getElementById('camera-backdrop').srcObject = null;
+      setPortrait(false);
+      rtcLive = false;
+    }
+
+    function closeRtcViewer() {
+      clearTimeout(rtcFallbackTimer);
+      if (rtcSignal) { rtcSignal.onclose = null; rtcSignal.close(); rtcSignal = null; }
+      closeRtcPeer();
+      document.getElementById('rtc-transport').textContent = '-';
+    }
+
+    function useJpegFallback(reason) {
+      if (cameraSource !== 'mobile' || rtcLive) return;
+      document.getElementById('rtc-transport').textContent = `JPEG fallback (${reason})`;
+      setLink(reason === 'WebRTC timeout' ? 'Waiting' : 'JPEG fallback');
+      if (!mobileSocket) connectMobileSocket();
+    }
+
+    function lowLatencyReceiver(receiver) {
+      if (JB_PARAM === null) return;
+      const sec = Math.max(0, Number(JB_PARAM) || 0) / 1000;
+      try { if ('jitterBufferTarget' in receiver) receiver.jitterBufferTarget = sec * 1000; } catch (e) {}
+      try { if ('playoutDelayHint' in receiver) receiver.playoutDelayHint = sec; } catch (e) {}
+    }
+
+    async function handleRtcSignal(msg) {
+      if (msg.type === 'welcome') {
+        document.getElementById('rtc-transport').textContent = msg.publisher ? 'WebRTC: negotiating' : 'WebRTC: waiting for phone';
+        setLink(msg.publisher ? 'Connecting' : 'Waiting');
+      } else if (msg.type === 'offer') {
+        closeRtcPeer();
+        const pc = new RTCPeerConnection({ iceServers: [] });
+        rtcPc = pc;
+        pc.ontrack = e => {
+          lowLatencyReceiver(e.receiver);
+          const v = document.getElementById('camera-video');
+          v.srcObject = e.streams[0] || new MediaStream([e.track]);
+          v.play().catch(() => {});
+          v.onplaying = () => { if (rtcPc === pc) setRtcLive(true); checkOrientation(v.videoWidth, v.videoHeight); };
+          v.onresize = () => checkOrientation(v.videoWidth, v.videoHeight); // phone rotated mid-stream
+          const bd = document.getElementById('camera-backdrop');
+          bd.srcObject = v.srcObject;
+          bd.play().catch(() => {});
+        };
+        pc.onicecandidate = e => rtcSend({ type: 'candidate', candidate: e.candidate });
+        pc.onconnectionstatechange = () => {
+          const st = pc.connectionState;
+          document.getElementById('rtc-transport').textContent = `WebRTC P2P: ${st}`;
+          if (st === 'failed' || st === 'closed') { if (rtcPc === pc) { closeRtcPeer(); useJpegFallback('WebRTC ' + st); } }
+        };
+        await pc.setRemoteDescription(msg.sdp);
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        rtcSend({ type: 'answer', sdp: pc.localDescription });
+        clearInterval(rtcStatsTimer);
+        rtcStatsTimer = setInterval(() => updateRtcStats(pc), 1000);
+      } else if (msg.type === 'candidate' && rtcPc && msg.candidate) {
+        await rtcPc.addIceCandidate(msg.candidate).catch(() => {});
+      } else if (msg.type === 'orientation') {
+        autoRotate = Number(msg.rotate) || 0;
+        applyRotation();
+      } else if (msg.type === 'publisher-left') {
+        autoRotate = 0;
+        applyRotation();
+        closeRtcPeer();
+        document.getElementById('rtc-transport').textContent = 'WebRTC: phone disconnected';
+        setLink('Phone left');
+        showNoVisual(true);
+      }
+    }
+
+    function connectRtcViewer() {
+      closeRtcViewer();
+      if (!window.RTCPeerConnection) { useJpegFallback('no WebRTC support'); return; }
+      try {
+        rtcSignal = new WebSocket(`wss://${window.location.hostname}:8443/ws/signal?role=viewer`);
+      } catch (e) { useJpegFallback('signaling error'); return; }
+      rtcSignal.onmessage = ev => {
+        let msg; try { msg = JSON.parse(ev.data); } catch (e) { return; }
+        rtcChain = rtcChain.then(() => handleRtcSignal(msg)).catch(() => {});
+      };
+      rtcSignal.onerror = () => useJpegFallback('signaling blocked, trust the :8443 certificate');
+      rtcSignal.onclose = () => { rtcSignal = null; if (cameraSource === 'mobile') setTimeout(() => { if (cameraSource === 'mobile' && !rtcSignal) connectRtcViewer(); }, 2000); };
+      rtcFallbackTimer = setTimeout(() => useJpegFallback('WebRTC timeout'), 6000);
+    }
+
+    async function updateRtcStats(pc) {
+      if (pc !== rtcPc) return;
+      let stats; try { stats = await pc.getStats(); } catch (e) { return; }
+      let inbound = null, pair = null; const codecs = {};
+      stats.forEach(s => {
+        if (s.type === 'inbound-rtp' && s.kind === 'video') inbound = s;
+        if (s.type === 'candidate-pair' && s.state === 'succeeded' && (s.nominated || s.selected)) pair = s;
+        if (s.type === 'codec') codecs[s.id] = s;
+      });
+      if (!inbound) return;
+      const prev = rtcPrev; rtcPrev = inbound;
+      const fps = inbound.framesPerSecond || 0;
+      document.getElementById('camera-fps').textContent = `${fps.toFixed(0)} fps`;
+      const codec = codecs[inbound.codecId];
+      const decoder = inbound.decoderImplementation ? ` ${inbound.decoderImplementation}` : '';
+      document.getElementById('rtc-codec').textContent = `${codec ? codec.mimeType.replace('video/', '') : '?'} ${inbound.frameWidth || '?'}x${inbound.frameHeight || '?'}${decoder}`;
+      const rttMs = pair && pair.currentRoundTripTime != null ? pair.currentRoundTripTime * 1000 : null;
+      document.getElementById('rtc-rtt').textContent = rttMs == null ? '-' : `${rttMs.toFixed(0)} ms`;
+      let jbMs = null, decMs = null;
+      if (prev) {
+        const dEmit = (inbound.jitterBufferEmittedCount || 0) - (prev.jitterBufferEmittedCount || 0);
+        if (dEmit > 0) jbMs = ((inbound.jitterBufferDelay || 0) - (prev.jitterBufferDelay || 0)) / dEmit * 1000;
+        const dDec = (inbound.framesDecoded || 0) - (prev.framesDecoded || 0);
+        if (dDec > 0) decMs = ((inbound.totalDecodeTime || 0) - (prev.totalDecodeTime || 0)) / dDec * 1000;
+      }
+      document.getElementById('rtc-buffer').textContent = jbMs == null ? '-' : `${jbMs.toFixed(0)} ms + ${decMs == null ? '?' : decMs.toFixed(1)} ms`;
+      if (jbMs != null && rttMs != null) {
+        const est = rttMs / 2 + jbMs + (decMs || 0) + 1000 / Math.max(fps, 1) / 2;
+        document.getElementById('rtc-latency').textContent = `~${est.toFixed(0)} ms + capture/encode`;
+        document.getElementById('rtc-latency-short').textContent = `~${est.toFixed(0)} ms`;
+      }
+      document.getElementById('rtc-loss').textContent = `${inbound.framesDropped || 0} frames / ${inbound.packetsLost || 0} pkts`;
+    }
+
+    // ---------------- picture orientation / fit ----------------
+    let fitMode = localStorage.getItem('fitMode') || 'fit';
+    function setFitMode(mode) {
+      fitMode = mode;
+      localStorage.setItem('fitMode', mode);
+      document.getElementById('camera-container').classList.toggle('fill', mode === 'fill');
+      document.getElementById('fit-btn').setAttribute('aria-pressed', String(mode === 'fit'));
+      document.getElementById('fill-btn').setAttribute('aria-pressed', String(mode === 'fill'));
+    }
+    function setPortrait(portrait) {
+      document.getElementById('camera-container').classList.toggle('portrait', portrait);
+      document.getElementById('orient-hint').classList.toggle('show', portrait && cameraSource === 'mobile');
+    }
+    // Rotation = what the phone reports (motion sensor) + optional manual correction.
+    let autoRotate = 0;
+    let manualRotate = Number(localStorage.getItem('manualRotate') || 0);
+    function effectiveRotation() { return (((autoRotate + manualRotate) % 360) + 360) % 360; }
+    function applyRotation() {
+      const rot = cameraSource === 'mobile' ? effectiveRotation() : 0;
+      const c = document.getElementById('camera-container');
+      ['rot90', 'rot180', 'rot270'].forEach(k => c.classList.toggle(k, k === 'rot' + rot));
+      document.getElementById('rotate-btn').setAttribute('aria-pressed', String(manualRotate !== 0));
+      const v = document.getElementById('camera-video');
+      if (v.videoWidth) checkOrientation(v.videoWidth, v.videoHeight);
+    }
+    function rotateManually() {
+      manualRotate = (manualRotate + 90) % 360;
+      localStorage.setItem('manualRotate', String(manualRotate));
+      applyRotation();
+    }
+    function checkOrientation(w, h) {
+      if (!w || !h) return;
+      const rot = cameraSource === 'mobile' && rtcLive ? effectiveRotation() : 0;
+      const sideways = rot === 90 || rot === 270;
+      setPortrait(sideways ? w > h : h > w);
+    }
+    document.getElementById('camera').addEventListener('load', e => checkOrientation(e.target.naturalWidth, e.target.naturalHeight));
+
+    function setCameraSource(source) {
+      cameraSource = source;
+      localStorage.setItem('cameraSource', source);
+      applyRotation();
+      lastFrameId = -1;
+      imageLoading = false;
+      document.getElementById('esp-source').setAttribute('aria-pressed', String(source === 'esp32'));
+      document.getElementById('mobile-source').setAttribute('aria-pressed', String(source === 'mobile'));
+      document.getElementById('camera-fps').textContent = '-';
+      ['rtc-latency-short', 'rtc-rtt'].forEach(id => document.getElementById(id).textContent = '-');
+      showNoVisual(true);
+      if (source === 'mobile') {
+        setLink('Connecting');
+        connectRtcViewer();
+      } else {
+        closeRtcViewer();
+        closeMobileSocket();
+        setLink('MJPEG');
+        document.getElementById('camera').src = `/api/stream?t=${Date.now()}`;
+      }
+    }
+
+    function swapCameraImage(frameId) {
+      if (imageLoading || frameId === lastFrameId) return;
+      imageLoading = true;
+      const next = new Image();
+      next.onload = () => {
+        document.getElementById('camera').src = next.src;
+        showNoVisual(false);
+        const now = performance.now();
+        if (lastFrameId >= 0) {
+          const instant = 1000 / Math.max(1, now - lastFrameAt);
+          fpsEstimate = fpsEstimate ? (fpsEstimate * 0.8 + instant * 0.2) : instant;
+          document.getElementById('camera-fps').textContent = `${fpsEstimate.toFixed(1)} fps`;
+        }
+        lastFrameAt = now;
+        lastFrameId = frameId;
+        imageLoading = false;
+      };
+      next.onerror = () => {
+        if (cameraSource === 'mobile' && next.src.startsWith('https://')) {
+          next.onerror = () => { imageLoading = false; };
+          next.src = `/api/mobile/latest.jpg?frame_id=${frameId}&t=${Date.now()}`;
+        } else {
+          imageLoading = false;
+        }
+      };
+      next.src = selectedFrameUrl(frameId);
+    }
+
+    async function refresh() {
+      try {
+        const res = await fetch('/status', { cache: 'no-store' });
+        const data = await res.json();
+        setHealth('h-server', 'server-status', data.server);
+        setHealth('h-esp', 'camera-status', data.camera);
+        setHealth('h-phone', 'mobile-camera-status', rtcLive ? 'LIVE' : (data.mobile_camera || 'OFFLINE'));
+        setHealth('h-memory', 'ai-status', data.ai);
+        setHealth('h-mic', 'mic-status', data.microphone);
+        setHealth('h-speaker', 'speaker-status', data.speaker);
+        const assistant = document.getElementById('assistant-status');
+        assistant.textContent = pretty(data.live_assistant || 'NOT_STARTED');
+        const frameInfo = selectedFrameInfo(data);
+        document.getElementById('frame-age').textContent = !frameInfo || frameInfo.age_ms === null ? 'No frame' : `${frameInfo.age_ms} ms`;
+        document.getElementById('lan-url').textContent = data.lan_ip ? `${data.lan_ip}:8443` : '-';
+        if (cameraSource === 'mobile') {
+          const live = rtcLive || (mobileSocketConnected && mobileLastReceivedAt && (performance.now() - mobileLastReceivedAt) < 3000);
+          if (live) {
+            // WebRTC or the JPEG socket is rendering frames directly.
+          } else if (frameInfo && frameInfo.available) {
+            swapCameraImage(frameInfo.frame_id);
+          } else {
+            showNoVisual(true);
+          }
+        } else if (frameInfo && frameInfo.available) {
+          const cameraImage = document.getElementById('camera');
+          if (!cameraImage.src.includes('/api/stream')) cameraImage.src = `/api/stream?t=${Date.now()}`;
+          showNoVisual(false);
+        } else {
+          showNoVisual(true);
+        }
+      } catch (err) {
+        setHealth('h-server', 'server-status', 'ERROR');
+      }
+    }
+
+    // ======================================================================
+    // Conversation: voice turns on the laptop mic + typed questions
+    // ======================================================================
+    const SOURCE_LABEL = { kitchen_graph: 'from kitchen memory', nemotron: 'Nemotron', safety: 'safety', repeat: 'repeated', brain: 'brain', greeting: 'greeting' };
+
+    // ---------------- presence + camera-triggered conversation ----------------
+    let lastAutoEventId = null;
+    async function loadPresence() {
+      try {
+        const p = await (await fetch('/api/presence', { cache: 'no-store' })).json();
+        const el = document.getElementById('person-status');
+        const item = document.getElementById('h-person');
+        item.classList.remove('state-ok', 'state-bad', 'state-idle');
+        if (p.status === 'error') { el.textContent = 'Error'; item.classList.add('state-bad'); item.title = p.error || 'Detector error'; }
+        else if (p.status === 'starting') { el.textContent = 'Loading'; item.classList.add('state-idle'); }
+        else if (!p.enabled || p.status === 'off') { el.textContent = 'Off'; item.classList.add('state-idle'); }
+        else if (p.listening) { el.textContent = 'Listening'; item.classList.add('state-ok'); }
+        else if (p.people && p.people.length) { el.textContent = 'In kitchen'; item.classList.add('state-ok'); }
+        else { el.textContent = 'None'; item.classList.add('state-idle'); }
+        if (p.status === 'running') item.title = `Person detection on the ${p.source || 'kitchen'} camera (${p.device}, ${p.infer_ms ?? '-'} ms)`;
+        const sw = document.getElementById('entry-listen');
+        if (document.activeElement !== sw) sw.checked = !!p.auto_listen;
+      } catch (e) {}
+    }
+    async function setEntryListen(on) {
+      try { await fetch('/api/presence/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ auto_listen: on }) }); } catch (e) {}
+      loadPresence();
+    }
+    async function loadAutoEvents() {
+      try {
+        const s = await (await fetch('/api/voice/state', { cache: 'no-store' })).json();
+        const events = s.auto_events || [];
+        if (lastAutoEventId === null) { lastAutoEventId = events.length ? events[events.length - 1].id : 0; return; }
+        events.filter(e => e.id > lastAutoEventId).forEach(e => {
+          if (e.role === 'note') addMsg('note', e.text);
+          else if (e.role === 'user') addMsg('user', e.text, 'spoken, camera-triggered');
+          else fillAnswer(addMsg('bot', ''), { answer: e.text, source: e.source });
+          lastAutoEventId = e.id;
+        });
+      } catch (e) {}
+    }
+    let voiceBusy = false;
+    let handsFree = false;
+    let quietTurns = 0;
+
+    function setVoiceState(state, text) {
+      const wrap = document.getElementById('voice-state');
+      const icon = { idle: 'ph-ear', listening: 'ph-microphone', thinking: 'ph-brain', speaking: 'ph-waveform' }[state] || 'ph-ear';
+      wrap.className = 'voice-state' + (state === 'idle' ? '' : ' live');
+      wrap.querySelector('i').className = 'ph ' + icon;
+      document.getElementById('voice-state-text').textContent = text;
+      const mic = document.getElementById('mic-btn');
+      mic.dataset.state = state;
+      mic.disabled = state === 'thinking' || state === 'speaking';
+      document.getElementById('mic-title').textContent = state === 'listening' ? 'Listening' : state === 'idle' ? (handsFree ? 'Hands-free is on' : 'Tap to talk') : text;
+    }
+
+    function addMsg(kind, text, meta) {
+      const empty = document.getElementById('empty-talk');
+      if (empty) empty.remove();
+      const thread = document.getElementById('thread');
+      const el = document.createElement('div');
+      el.className = `msg ${kind}`;
+      const who = document.createElement('div');
+      who.className = 'who';
+      who.textContent = kind === 'user' ? 'You' : kind === 'note' ? '' : 'Assistant';
+      if (meta) { const m = document.createElement('span'); m.textContent = meta; who.appendChild(m); }
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = text;
+      if (kind !== 'note') el.appendChild(who);
+      el.appendChild(bubble);
+      thread.appendChild(el);
+      thread.scrollTop = thread.scrollHeight;
+      return el;
+    }
+
+    function fillAnswer(el, data, extraMeta) {
+      const safety = data.source === 'safety' || (data.answer || '').includes('not certain');
+      el.className = 'msg bot' + (safety ? ' safety' : '');
+      el.querySelector('.bubble').textContent = data.answer || 'No answer.';
+      const who = el.querySelector('.who');
+      who.textContent = 'Assistant';
+      const m = document.createElement('span');
+      m.textContent = [SOURCE_LABEL[data.source] || data.source, extraMeta].filter(Boolean).join(', ');
+      who.appendChild(m);
+      document.getElementById('thread').scrollTop = 1e9;
+    }
+
+    async function waitForSpeechToFinish() {
+      setVoiceState('speaking', 'Speaking');
+      const started = performance.now();
+      while (performance.now() - started < 60000) {
+        await new Promise(r => setTimeout(r, 300));
+        try {
+          const s = await (await fetch('/api/voice/state', { cache: 'no-store' })).json();
+          if (!s.speaking) break;
+        } catch (e) { break; }
+      }
+    }
+
+    function audioDevices() {
+      const mic = document.getElementById('mic-select').value;
+      const spk = document.getElementById('speaker-select').value;
+      return { mic_device: /^\d+$/.test(mic) ? mic : null, speaker_device: /^\d+$/.test(spk) ? spk : null };
+    }
+
+    async function sendText(text) {
+      text = String(text || '').trim();
+      if (!text || voiceBusy) return;
+      document.getElementById('ask-input').value = '';
+      voiceBusy = true;
+      addMsg('user', text, 'typed');
+      const pending = addMsg('bot pending', 'Thinking');
+      setVoiceState('thinking', 'Thinking');
+      const speak = document.getElementById('ask-speak').checked;
+      const t0 = performance.now();
+      try {
+        const res = await fetch('/api/assistant/ask', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: text, speak, speaker_device: audioDevices().speaker_device })
+        });
+        const data = await res.json();
+        fillAnswer(pending, data, `${((performance.now() - t0) / 1000).toFixed(1)} s`);
+        if (speak) await waitForSpeechToFinish();
+      } catch (err) {
+        fillAnswer(pending, { answer: 'Could not reach the assistant. Check that the server is running.', source: 'safety' });
+      }
+      voiceBusy = false;
+      setVoiceState('idle', 'Ready');
+    }
+
+    async function talkOnce() {
+      if (voiceBusy) return;
+      voiceBusy = true;
+      setVoiceState('listening', 'Listening');
+      let data;
+      try {
+        const res = await fetch('/api/voice/turn', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ speak: document.getElementById('ask-speak').checked, ...audioDevices() })
+        });
+        data = await res.json();
+      } catch (err) {
+        data = { status: 'error', message: 'Could not reach the server.' };
+      }
+      if (data.status === 'no_speech') {
+        quietTurns++;
+        if (!handsFree) addMsg('note', 'I did not hear anything. Tap the microphone and speak after the beep.');
+      } else if (data.status === 'busy' || (data.status === 'error' && !data.answer)) {
+        addMsg('note', data.message || 'The microphone is busy. Try again in a moment.');
+        if (handsFree) { handsFree = false; document.getElementById('handsfree').checked = false; }
+      } else {
+        quietTurns = 0;
+        addMsg('user', data.transcript, 'spoken');
+        const el = addMsg('bot', '');
+        fillAnswer(el, data, data.think_ms != null ? `${(data.think_ms / 1000).toFixed(1)} s` : '');
+        if (data.spoke) await waitForSpeechToFinish();
+        if (data.source === 'safety' && handsFree) { handsFree = false; document.getElementById('handsfree').checked = false; }
+      }
+      voiceBusy = false;
+      setVoiceState('idle', 'Ready');
+      if (handsFree) {
+        if (quietTurns >= 3) {
+          handsFree = false; document.getElementById('handsfree').checked = false;
+          addMsg('note', 'Hands-free paused after a long silence.');
+          setVoiceState('idle', 'Ready');
+        } else {
+          setTimeout(talkOnce, 400);
+        }
+      }
+    }
+
+    const EMPTY_TALK_HTML = document.getElementById('thread').innerHTML;
+    async function clearChat() {
+      if (handsFree) { handsFree = false; document.getElementById('handsfree').checked = false; }
+      document.getElementById('thread').innerHTML = EMPTY_TALK_HTML;
+      document.getElementById('ask-input').value = '';
+      try { await fetch('/api/voice/clear', { method: 'POST' }); } catch (e) {}
+      if (!voiceBusy) setVoiceState('idle', 'Ready');
+      document.getElementById('ask-input').focus();
+    }
+
+    function toggleHandsFree() {
+      handsFree = document.getElementById('handsfree').checked;
+      quietTurns = 0;
+      setVoiceState('idle', 'Ready');
+      if (handsFree && !voiceBusy) talkOnce();
+    }
+
+    async function repeatLast() {
+      try {
+        const s = await (await fetch('/api/voice/state', { cache: 'no-store' })).json();
+        if (!s.last_answer) { addMsg('note', 'Nothing to repeat yet.'); return; }
+        await fetch('/api/voice/speak', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: s.last_answer, speaker_device: audioDevices().speaker_device }) });
+        if (!voiceBusy) { voiceBusy = true; await waitForSpeechToFinish(); voiceBusy = false; setVoiceState('idle', 'Ready'); }
+      } catch (e) {}
+    }
+
+    document.addEventListener('keydown', e => {
+      const tag = (e.target.tagName || '').toLowerCase();
+      if (e.code !== 'Space' || ['input', 'textarea', 'select', 'button', 'summary', 'a'].includes(tag)) return;
+      e.preventDefault();
+      talkOnce();
+    });
+
+    // ======================================================================
+    // Vision, live assistant loop, kitchen memory
+    // ======================================================================
+    async function loadVlmState() {
+      try {
+        const res = await fetch('/api/vlm/state', { cache: 'no-store' });
+        const data = await res.json();
+        const state = data.reasoner;
+        if (!state) {
+          setHealth('h-vision', 'vlm-status', 'NOT_STARTED');
+          document.getElementById('vlm-summary').textContent = 'The vision model is not running. Start scripts/live_kitchen_vlm.py to describe the scene.';
+          document.getElementById('vlm-objects').textContent = '';
+          document.getElementById('vlm-meta').textContent = '';
+          return;
+        }
+        setHealth('h-vision', 'vlm-status', state.status === 'running' ? 'RUNNING' : state.status === 'error' ? 'ERROR' : String(state.status || 'NOT_STARTED'));
+        document.getElementById('vlm-model').textContent = (state.model || '-').split('/').pop() + (state.device ? ` (${state.device})` : '');
+        document.getElementById('vlm-latency').textContent = state.latency_ms == null ? '-' : `${state.latency_ms} ms`;
+        const obs = state.last_observation || {};
+        let summary = String(obs.summary || '').replace(/^"+|"+$/g, '');
+        const looksLikePrompt = /one short sentence/i.test(summary) || obs.parse_warning;
+        if (state.status === 'waiting_for_camera') summary = 'Waiting for camera frames.';
+        else if (!summary || looksLikePrompt) summary = state.last_error || 'No clear description from the last frame.';
+        document.getElementById('vlm-summary').textContent = summary;
+        const objects = Array.isArray(obs.objects) ? obs.objects : [];
+        document.getElementById('vlm-objects').textContent = objects.length
+          ? 'Seen: ' + objects.map(o => `${o.label || 'object'} (${o.location || 'position unclear'})`).join(', ')
+          : (obs.safety_notes || []).join(' ');
+        const isLocal = state.local_only === true || state.backend === 'local';
+        document.getElementById('vlm-meta').textContent = `${isLocal ? 'On this laptop' : 'Cloud model'}${state.latency_ms != null ? `, ${(state.latency_ms / 1000).toFixed(1)} s per frame` : ''}. Observations are not treated as verified memory.`;
+        document.getElementById('vlm-privacy').textContent = isLocal
+          ? `Source: ${state.source || '-'}. Running locally on ${state.device || 'laptop'}; frames stay on this laptop.`
+          : `Source: ${state.source || '-'}. Frames are sent to a cloud API for reasoning.`;
+      } catch (err) {
+        setHealth('h-vision', 'vlm-status', 'ERROR');
+      }
+    }
+
+    async function loadAssistantState() {
+      try {
+        const res = await fetch('/api/assistant/state', { cache: 'no-store' });
+        const data = await res.json();
+        const state = data.state || {};
+        document.getElementById('assistant-user').textContent = state.user_name || '';
+        document.getElementById('assistant-task').textContent = state.current_task || '';
+        document.getElementById('assistant-step').textContent = state.tea_step ?? '';
+        document.getElementById('assistant-transcript').textContent = state.last_transcript || 'Nothing yet.';
+        document.getElementById('assistant-answer').textContent = state.last_answer || 'Nothing yet.';
+        // tea_step is the index of the NEXT step to speak; the one being followed is tea_step - 1.
+        const active = state.current_task === 'make_tea';
+        const current = active ? Math.max(0, (state.tea_step || 1) - 1) : -1;
+        document.querySelectorAll('#steps li').forEach(li => {
+          const i = Number(li.dataset.i);
+          li.classList.toggle('done', active && i < current);
+          li.classList.toggle('current', i === current);
+        });
+      } catch (err) {}
+    }
+
+    let evidenceFrames = [];
+    async function loadEvidenceIndex() {
+      try {
+        const meta = await (await fetch('/evidence/metadata.json', { cache: 'no-store' })).json();
+        evidenceFrames = (meta.keyframes || []).map(k => ({ t: k.timestamp_seconds, file: String(k.path).split(/[\\/]/).pop() }));
+      } catch (e) { evidenceFrames = []; }
+    }
+    function evidenceFor(ts) {
+      if (ts == null || !evidenceFrames.length) return null;
+      let best = evidenceFrames[0];
+      evidenceFrames.forEach(f => { if (Math.abs(f.t - ts) < Math.abs(best.t - ts)) best = f; });
+      return `/evidence/${encodeURIComponent(best.file)}`;
+    }
+
+    async function loadGraphObjects() {
+      const container = document.getElementById('objects');
+      const unknownRow = document.getElementById('unknown-row');
+      try {
+        await loadEvidenceIndex();
+        const res = await fetch('/api/graph', { cache: 'no-store' });
+        const data = await res.json();
+        const HIDE = ['zone', 'counter', 'camera position', 'bag'];
+        const objects = ((data.graph && data.graph.objects) || []).filter(o => !HIDE.includes(o.object_type));
+        const known = objects.filter(o => o.uncertainty_status !== 'unknown');
+        const unknown = objects.filter(o => o.uncertainty_status === 'unknown');
+        container.innerHTML = '';
+        known.forEach(o => {
+          const label = o.semantic_label || o.object_type;
+          const btn = document.createElement('button');
+          btn.className = 'fact';
+          btn.title = (o.visual_evidence ? o.visual_evidence + ' ' : '') + `Select to ask: Where is the ${label}?`;
+          btn.onclick = () => sendText(`Where is the ${label}?`);
+          const src = o.evidence_image || evidenceFor(o.source_timestamp);
+          const img = document.createElement('img');
+          img.alt = `Walkthrough frame showing the ${label}`;
+          img.loading = 'lazy';
+          if (src) img.src = src;
+          const body = document.createElement('div');
+          const conf = Number(o.confidence || 0);
+          const status = ({ confirmed: 'Seen and named', visual: 'Seen', uncertain: 'Uncertain' })[o.uncertainty_status] || 'Uncertain';
+          body.innerHTML = `<strong></strong><p></p><div class="meta"><span>${status}</span><span class="num">conf ${conf.toFixed(2)}</span>${o.source_timestamp != null ? `<span class="num">${Number(o.source_timestamp).toFixed(1)} s</span>` : ''}</div>`;
+          body.querySelector('strong').textContent = label;
+          body.querySelector('p').textContent = o.location || 'Location not recorded';
+          btn.append(img, body);
+          container.appendChild(btn);
+        });
+        if (!known.length) container.innerHTML = '<p class="muted">No kitchen facts yet. Build the graph from the walkthrough video to fill this in.</p>';
+        const order = data.graph && data.graph.counter_order_left_to_right;
+        document.getElementById('memory-aside').textContent = order ? `Counter, left to right: ${order.join(', ')}` : `${known.length} items learned from the walkthrough. Select one to ask where it is.`;
+        if (unknown.length) {
+          unknownRow.hidden = false;
+          unknownRow.innerHTML = '<span>Not in the walkthrough, so the assistant will say it is not certain:</span>';
+          unknown.forEach(o => { const s = document.createElement('span'); s.className = 'item'; s.textContent = o.semantic_label || o.object_type; unknownRow.appendChild(s); });
+        }
+      } catch (err) {
+        container.innerHTML = '<p class="muted">Kitchen memory could not be loaded. Check that data/graphs/kitchen_graph.json exists.</p>';
+      }
+    }
+
+    // ======================================================================
+    // Audio diagnostics (unchanged endpoints)
+    // ======================================================================
+    async function audioFetch(url, options) {
+      let res;
+      try { res = await fetch(url, options); }
+      catch (err) { return { _fail: 'network', error: 'Cannot reach the server. Is it running?' }; }
+      let data = null;
+      try { data = await res.json(); } catch (e) { data = null; }
+      if (res.status === 404 || (data && data.detail === 'Not Found')) return { _fail: 'notfound', error: 'Audio endpoints are missing. Restart the server to load them.' };
+      if (!res.ok) return { _fail: 'http', error: (data && (data.error || data.detail)) || ('Server error ' + res.status) };
+      return data || { _fail: 'empty', error: 'Empty response from server.' };
+    }
+
+    function setBanner(kind, msg) {
+      const b = document.getElementById('audio-banner');
+      if (!msg) { b.style.display = 'none'; return; }
+      b.style.display = 'block';
+      b.className = 'banner' + (kind === 'err' ? ' err' : '');
+      b.textContent = msg;
+    }
+
+    let audioBusy = false;
+    function setAudioButtons(enabled) {
+      audioBusy = !enabled;
+      ['speaker-test-btn', 'mic-test-btn', 'warmup-btn'].forEach(id => { const el = document.getElementById(id); if (el) el.disabled = !enabled; });
+    }
+
+    function fillSelect(sel, items, selectedIndex) {
+      const keep = sel.value;
+      sel.innerHTML = '';
+      if (!items || !items.length) {
+        const o = document.createElement('option'); o.textContent = 'None detected'; sel.appendChild(o); sel.disabled = true; return;
+      }
+      items.forEach(it => {
+        const o = document.createElement('option');
+        o.value = it.index;
+        o.textContent = `#${it.index} ${it.name}`;
+        if (String(it.index) === keep || (keep === '' || !/^\d+$/.test(keep)) && selectedIndex != null && it.index === selectedIndex) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.disabled = false;
+    }
+
+    async function loadAudioDevices() {
+      const backendEl = document.getElementById('audio-backend');
+      const micSel = document.getElementById('mic-select');
+      const spkSel = document.getElementById('speaker-select');
+      const data = await audioFetch('/api/audio/devices', { cache: 'no-store' });
+      if (data._fail || !data.available) {
+        backendEl.textContent = data._fail === 'notfound' ? 'needs restart' : 'unavailable';
+        setBanner('err', data.error || 'Audio backend (sounddevice/PortAudio) not available in the server process.');
+        fillSelect(micSel, []); fillSelect(spkSel, []);
+        setAudioButtons(false);
+        return;
+      }
+      backendEl.textContent = 'ready';
+      setBanner('', '');
+      fillSelect(micSel, data.inputs, data.default_input && data.default_input.index);
+      fillSelect(spkSel, data.outputs, data.default_output && data.default_output.index);
+      setAudioButtons(true);
+    }
+
+    async function testSpeaker() {
+      const resultEl = document.getElementById('audio-result');
+      resultEl.textContent = 'Speaking the test phrase on the laptop speaker.';
+      const data = await audioFetch('/api/audio/speaker/test', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: document.getElementById('speaker-text').value.trim(), device: document.getElementById('speaker-select').value })
+      });
+      if (data._fail) { resultEl.textContent = 'Failed: ' + data.error; setBanner('err', data.error); return; }
+      if (data.busy) { resultEl.textContent = data.error; return; }
+      resultEl.textContent = data.ok ? `Spoke "${data.spoke}" in ${data.elapsed_ms} ms.` : 'Speaker error: ' + (data.error || 'unknown');
+    }
+
+    async function testMic() {
+      const resultEl = document.getElementById('audio-result');
+      setAudioButtons(false);
+      resultEl.textContent = 'Listening after the beep. Speak now.';
+      const data = await audioFetch('/api/audio/mic/test', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ device: document.getElementById('mic-select').value })
+      });
+      setAudioButtons(true);
+      if (data._fail) { resultEl.textContent = 'Failed: ' + data.error; setBanner('err', data.error); return; }
+      if (data.busy) { resultEl.textContent = data.error; return; }
+      const st = data.stats || {};
+      document.getElementById('audio-stats').textContent = data.stats
+        ? `Captured ${st.captured_seconds}s (voice ${st.voiced_seconds}s), peak ${st.peak}, threshold ${st.threshold}, noise floor ${st.noise_floor}` : '';
+      const player = document.getElementById('audio-playback');
+      if (data.captured) { player.src = '/api/audio/mic/last.wav?t=' + Date.now(); player.style.display = 'block'; }
+      if (!data.ok) resultEl.textContent = 'Microphone error: ' + (data.error || 'unknown');
+      else if (data.captured && !data.text) resultEl.textContent = 'Heard sound but no clear words. Speak a little louder or closer.';
+      else if (!data.captured) resultEl.textContent = data.message || 'No speech detected. Speak right after the beep.';
+      else resultEl.textContent = `Heard "${data.text}" (${data.model} on ${data.device}, ${data.elapsed_ms} ms).`;
+    }
+
+    async function warmUpAudio() {
+      const resultEl = document.getElementById('audio-result');
+      setAudioButtons(false);
+      resultEl.textContent = 'Loading the speech engine and the transcription model.';
+      const data = await audioFetch('/api/audio/warmup', { method: 'POST' });
+      setAudioButtons(true);
+      if (data._fail) { resultEl.textContent = 'Failed: ' + data.error; setBanner('err', data.error); return; }
+      if (data.busy) { resultEl.textContent = data.error; return; }
+      resultEl.textContent = data.ok ? `Ready: ${data.model} on ${data.device}, loaded in ${data.load_ms} ms.` : 'Warm-up error: ' + (data.error || 'unknown');
+    }
+
+    // ======================================================================
+    // Boot
+    // ======================================================================
+    setFitMode(fitMode);
+    applyRotation();
+    setCameraSource(cameraSource);
+    setVoiceState('idle', 'Ready');
+    refresh();
+    loadGraphObjects();
+    loadVlmState();
+    loadAssistantState();
+    loadAudioDevices().then(() => audioFetch('/api/audio/warmup', { method: 'POST' })); // preload STT/TTS so the first turn is fast
+    setInterval(() => { if (!audioBusy && !voiceBusy) loadAudioDevices(); }, 15000);
+    setInterval(refresh, 250);
+    setInterval(loadAssistantState, 1000);
+    setInterval(loadVlmState, 1000);
+    loadPresence();
+    loadAutoEvents();
+    setInterval(loadPresence, 1000);
+    setInterval(loadAutoEvents, 1000);
+  </script>
+</body>
+</html>

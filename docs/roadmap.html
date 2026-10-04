@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kitchen Memory Assistant — Live Roadmap</title>
+  <style>
+    :root { --bg:#0f172a; --panel:#111827; --muted:#94a3b8; --text:#e5e7eb; --green:#22c55e; --yellow:#eab308; --red:#ef4444; --blue:#38bdf8; --line:#334155; }
+    body { margin:0; font-family:Segoe UI, Arial, sans-serif; background:linear-gradient(135deg,#0f172a,#111827); color:var(--text); }
+    header { padding:28px 32px; border-bottom:1px solid var(--line); }
+    h1 { margin:0 0 8px; font-size:30px; }
+    h2 { margin:0 0 14px; font-size:20px; }
+    .subtitle, .muted { color:var(--muted); }
+    main { padding:24px 32px 40px; display:grid; gap:18px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
+    .card { background:rgba(17,24,39,.88); border:1px solid var(--line); border-radius:16px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.22); }
+    .badge { display:inline-block; padding:4px 10px; border-radius:999px; font-weight:600; font-size:12px; border:1px solid var(--line); }
+    .done { color:var(--green); } .active { color:var(--yellow); } .blocked { color:var(--red); } .pending { color:var(--muted); }
+    .bar { height:12px; background:#1f2937; border-radius:999px; overflow:hidden; border:1px solid var(--line); }
+    .fill { height:100%; background:linear-gradient(90deg,var(--blue),var(--green)); }
+    table { width:100%; border-collapse:collapse; }
+    th,td { padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { color:#cbd5e1; font-size:13px; text-transform:uppercase; letter-spacing:.04em; }
+    ul { margin:8px 0 0 20px; padding:0; }
+    li { margin:6px 0; }
+    code { background:#020617; border:1px solid #1e293b; padding:2px 5px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Kitchen Memory Assistant — Live Development Roadmap</h1>
+    <div class="subtitle">Local-only hackathon MVP: learn a kitchen from one narrated walkthrough video, build a Kitchen Knowledge Graph, and guide a safe tea task through laptop speaker audio.</div>
+    <p class="muted">Last updated: <strong>2026-10-04</strong></p>
+  </header>
+  <main>
+    <section class="grid">
+      <div class="card">
+        <h2>Current phase</h2>
+        <span class="badge active">Laptop AI MVP — Perception, Memory, Query</span>
+        <p>ESP32 camera is live, and a mobile-phone camera mapping mode has been added for higher-quality kitchen visuals. Current focus is local perception, kitchen graph memory, deterministic Q&amp;A, and live assistant interaction.</p>
+      </div>
+      <div class="card">
+        <h2>Overall progress</h2>
+        <div class="bar"><div class="fill" style="width: 42%"></div></div>
+        <p class="muted">50%: HF CLI verified, CUDA stack verified, 20 keyframes extracted, SmolVLM2-500M tested on one keyframe, faster-whisper transcript generated, graph/query created, ESP32 live feed working, and mobile camera mapping endpoint/page added.</p>
+      </div>
+      <div class="card">
+        <h2>Next immediate milestone</h2>
+        <p>Use mobile camera mapping from <code>/mobile/</code> to capture high-quality kitchen frames locally, then select frames for graph improvement or approved VLM analysis.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Latest cycle: low-latency video and voice console</h2>
+      <ul>
+        <li><span class="done">Done</span> Phone video to dashboard over WebRTC peer-to-peer on the LAN (30 fps, hardware encoder). Server only relays signaling at <code>/ws/signal</code>; JPEG at 2 fps continues for the VLM.</li>
+        <li><span class="done">Done</span> Dashboard redesigned as a voice-first console: talk button and hands-free mode (<code>/api/voice/turn</code>), typed chat, kitchen memory with walkthrough evidence frames, tea step progress, collapsible diagnostics.</li>
+        <li><span class="done">Done</span> Answer authority order: safety intents (stop, repeat), then kitchen graph, then Nemotron. Replies are spoken in the background so text appears immediately.</li>
+        <li><span class="done">Done</span> Kitchen graph rebuilt from a Claude vision review of 52 walkthrough frames plus narration (<code>scripts/build_graph_claude_vision.py</code>): 21 objects, left-to-right counter order, per-object evidence frames, coffee routine. The walkthrough shows coffee, not tea.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Phase status</h2>
+      <table>
+        <thead><tr><th>Cycle</th><th>Status</th><th>Evidence</th></tr></thead>
+        <tbody>
+          <tr><td>0 — Environment + dependency audit</td><td class="done">Done for core hardware path</td><td>Git Bash works. Python 3.11 installed. PlatformIO installed. Laptop: Ryzen 7 7840HS, 16 GB RAM, RTX 3050 6 GB VRAM, ~272 GB free disk. FFmpeg installed but PATH may require fresh shell.</td></tr>
+          <tr><td>1 — Project documentation</td><td class="active">In progress</td><td>README, AGENTS, documentation set, local config template, and roadmap have been created locally.</td></tr>
+          <tr><td>2 — Local server skeleton</td><td class="done">Done</td><td>FastAPI /health and /status tested. /api/frame accepts JPEG bytes. /api/stream serves dashboard stream.</td></tr>
+          <tr><td>3 — Mapping video ingestion</td><td class="done">Done for recorded video</td><td>Source MP4 opened by OpenCV and faster-whisper.</td></tr>
+          <tr><td>4 — Keyframe extraction</td><td class="done">Done</td><td><code>scripts/extract_keyframes.py --max-frames 20 --every-seconds 3</code> generated 20 JPEG keyframes under <code>artifacts/keyframes</code>.</td></tr>
+          <tr><td>5 — Speech transcription</td><td class="done">Done initial pass</td><td><code>scripts/transcribe_video.py --model base</code> wrote timestamped JSON to <code>artifacts/transcripts/kitchen_transcript.json</code>.</td></tr>
+          <tr><td>6 — Vision understanding</td><td class="done">Done</td><td>Unified <code>scripts/live_kitchen_vlm.py</code> with two backends: <code>claude</code> (Anthropic vision API, primary) and <code>local</code> SmolVLM2-500M (verified on CUDA, ~1.4 GB VRAM, fallback). SmolVLM2-2.2B dropped (unreliable download + HF-endpoint path removed).</td></tr>
+          <tr><td>7 — Knowledge graph generation</td><td class="done">Initial graph created</td><td><code>data/graphs/kitchen_graph.json</code> created with transcript evidence and tested VLM evidence; uncertain/unknown facts are preserved.</td></tr>
+          <tr><td>8 — Graph query engine</td><td class="done">Done initial pass</td><td><code>scripts/query_graph.py</code> answers graph-backed location questions and safely says “I am not certain. Please stop.” when evidence is missing.</td></tr>
+          <tr><td>9 — Tea task state machine</td><td class="pending">Pending</td><td>State sequence documented; code not yet implemented.</td></tr>
+          <tr><td>10 — Local TTS / speaker feedback</td><td class="pending">Pending</td><td>Not implemented or audibly tested.</td></tr>
+          <tr><td>11 — PlatformIO firmware</td><td class="done">Done for first hardware pass</td><td>COM4 detected as ESP32-S3. Firmware built and uploaded successfully. Board reports Wi-Fi connection and HTTP 200 frame uploads.</td></tr>
+          <tr><td>12 — ESP32 -> laptop communication</td><td class="pending">Pending</td><td>Not implemented.</td></tr>
+          <tr><td>13 — Live visual detection</td><td class="pending">Pending</td><td>Not implemented.</td></tr>
+          <tr><td>14 — End-to-end integration</td><td class="pending">Pending</td><td>Not implemented.</td></tr>
+          <tr><td>15 — Blindfold demo test</td><td class="pending">Pending</td><td>Not run.</td></tr>
+          <tr><td>16 — Stabilization + final documentation</td><td class="pending">Pending</td><td>Pending implementation.</td></tr>
+          <tr><td>17 — Final demo readiness</td><td class="pending">Pending</td><td>Pending end-to-end validation.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Completed work</h2>
+        <ul>
+          <li>Confirmed Firstmate distro exists at <code>C:\Users\HP\firstmate</code>.</li>
+          <li>Confirmed source video file is readable as MP4 at the provided path.</li>
+          <li>Created local project documentation foundation.</li>
+          <li>Created local-only project instructions.</li>
+          <li>Created ignore rules for video/data/model artifacts and secrets.</li>
+          <li>Created local ignored Wi-Fi/server configuration files.</li>
+          <li>Created FastAPI latest-frame server skeleton.</li>
+          <li>Created live camera dashboard skeleton.</li>
+          <li>Created PlatformIO firmware skeleton for XIAO ESP32-S3 camera upload.</li>
+          <li>Installed Python 3.11, PlatformIO, core server packages, and camera/voice dependencies.</li>
+          <li>Built and uploaded ESP32-S3 firmware on COM4.</li>
+          <li>Verified ESP32 sends JPEG frames to FastAPI with HTTP 200 responses.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Active work</h2>
+        <ul>
+          <li>Keep live server terminal running.</li>
+          <li>Confirm browser dashboard shows continuous ESP32 live image.</li>
+          <li>Refine graph with additional approved VLM evidence.</li>
+          <li>Keep endpoint usage disabled unless remote image upload is explicitly allowed.</li>
+          <li>Open <code>/mobile/</code> on the phone, start camera, capture mapping frames, and verify dashboard Mobile Camera source.</li>
+          <li>Test local Gradio dashboard in browser and optionally enable local TTS.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Blocked items</h2>
+        <ul>
+          <li>Firstmate crew spawning is still blocked/read-only because the Firstmate session lock was not verified in this Pi session.</li>
+          <li>Need visual confirmation from the browser that the dashboard is showing the live ESP32 image.</li>
+          <li>The <code>claude</code> VLM backend uploads camera frames to Anthropic (owner-approved trade-off); use <code>--backend local</code> for fully on-device, private reasoning.</li>
+          <li>Mobile browser camera may require permissions and same Wi-Fi/LAN access; HTTPS may be needed on some phones/browsers.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Recent completed milestones</h2>
+      <ul>
+        <li>Documentation structure created.</li>
+        <li>Architecture, MVP scope, AI stack, hardware, firmware, API, task, audio, testing, and roadmap docs drafted.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Validation / test status</h2>
+      <p>Executable validation completed for laptop AI path: HF CLI <code>hf</code> help works, CUDA PyTorch reports RTX 3050, 20 keyframes extracted, SmolVLM2-500M loaded and analyzed one keyframe, faster-whisper generated timestamped transcript JSON, local transcript-based kitchen graph generated, graph queries return either a graph-backed answer or the safe uncertainty phrase, local Gradio app instantiates successfully, ESP32 frames arrive, and mobile frame upload/latest-frame endpoints were tested.</p>
+    </section>
+  </main>
+</body>
+</html>

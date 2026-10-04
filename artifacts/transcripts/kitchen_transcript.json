@@ -1,0 +1,121 @@
+{
+  "created_at": "2026-10-04T03:47:30",
+  "source_video": "WhatsApp Video 2026-10-03 at 22.46.42.mp4",
+  "model": "base",
+  "device": "cuda",
+  "compute_type": "float16",
+  "language": "en",
+  "language_probability": 0.75146484375,
+  "duration": 77.7621875,
+  "text": "Hey, this whole space is our kitchen space. As you can see, there is a cupboard in this area and We'll be clipping the camera over there somewhere pointing downwards and Here you can see we can find glasses here. We'll be using one of these glasses for making coffee If you move here, we have the kettle the kettle is Connected to the power and turn down and this makes it turn on and you can see there is a two bottles and a mug this is sugar and I see you can see this is coffee and it will be filled with water. So when you are making Coffee you take water open the kettle put it in here and heat up and you take a glass and you mix So this is the whole set up when you can use tissues here more water there Camera over there chair if in case",
+  "segments": [
+    {
+      "id": 1,
+      "start": 1.42,
+      "end": 10.22,
+      "text": "Hey, this whole space is our kitchen space. As you can see, there is a cupboard in this area and"
+    },
+    {
+      "id": 2,
+      "start": 12.02,
+      "end": 17.18,
+      "text": "We'll be clipping the camera over there somewhere pointing downwards and"
+    },
+    {
+      "id": 3,
+      "start": 18.1,
+      "end": 23.34,
+      "text": "Here you can see we can find glasses here. We'll be using one of these glasses"
+    },
+    {
+      "id": 4,
+      "start": 24.34,
+      "end": 26.34,
+      "text": "for making"
+    },
+    {
+      "id": 5,
+      "start": 26.34,
+      "end": 27.84,
+      "text": "coffee"
+    },
+    {
+      "id": 6,
+      "start": 27.84,
+      "end": 30.9,
+      "text": "If you move here, we have the kettle the kettle is"
+    },
+    {
+      "id": 7,
+      "start": 32.14,
+      "end": 39.1,
+      "text": "Connected to the power and turn down and this makes it turn on and you can see there is a"
+    },
+    {
+      "id": 8,
+      "start": 39.9,
+      "end": 44.04,
+      "text": "two bottles and a mug this is sugar and"
+    },
+    {
+      "id": 9,
+      "start": 46.38,
+      "end": 51.42,
+      "text": "I see you can see this is coffee and it will be filled with water. So when you are making"
+    },
+    {
+      "id": 10,
+      "start": 52.78,
+      "end": 54.78,
+      "text": "Coffee you take water"
+    },
+    {
+      "id": 11,
+      "start": 54.78,
+      "end": 56.78,
+      "text": "open the kettle"
+    },
+    {
+      "id": 12,
+      "start": 56.86,
+      "end": 58.86,
+      "text": "put it in here and"
+    },
+    {
+      "id": 13,
+      "start": 58.86,
+      "end": 60.86,
+      "text": "heat up and"
+    },
+    {
+      "id": 14,
+      "start": 60.86,
+      "end": 62.86,
+      "text": "you take a glass"
+    },
+    {
+      "id": 15,
+      "start": 62.86,
+      "end": 64.86,
+      "text": "and you mix"
+    },
+    {
+      "id": 16,
+      "start": 64.86,
+      "end": 69.58,
+      "text": "So this is the whole set up when you can use tissues here more water there"
+    },
+    {
+      "id": 17,
+      "start": 70.86,
+      "end": 72.86,
+      "text": "Camera over there"
+    },
+    {
+      "id": 18,
+      "start": 72.86,
+      "end": 74.86,
+      "text": "chair if in case"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+httpx2
+opencv-python
+numpy
+networkx
+pyttsx3
+sounddevice
+gradio
+faster-whisper
+transformers>=4.57.0
+accelerate
+pillow
+safetensors
+sentencepiece
+huggingface_hub
+num2words
+anthropic
+openai
+python-dotenv
+torch
+torchvision
+torchaudio
+pywin32; sys_platform == "win32"

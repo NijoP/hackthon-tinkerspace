@@ -1,0 +1,80 @@
+# ---------------------------------------------------------------------------
+# Secrets and private keys: never publish
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+firmware/include/secrets.h
+certs/
+*.pem
+*.key
+*.crt
+*.srl
+*.csr
+*.p12
+
+# ---------------------------------------------------------------------------
+# Python / tooling
+# ---------------------------------------------------------------------------
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+models/
+
+# PlatformIO build output
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# ---------------------------------------------------------------------------
+# Personal recordings and media
+# ---------------------------------------------------------------------------
+# Original narrated walkthrough video (personal footage, kept local by policy)
+*.mp4
+*.mov
+*.mkv
+*.avi
+*.wav
+*.mp3
+*.jsonl
+!pitch/Super_Monkey_pitch_preview.mp4
+
+# ---------------------------------------------------------------------------
+# Generated artifacts: ignore everything, then allow the curated outputs
+# ---------------------------------------------------------------------------
+artifacts/*
+!artifacts/kitchen_evidence/
+!artifacts/keyframes_quality/
+!artifacts/claude_vision/
+!artifacts/transcripts/
+artifacts/claude_vision/frame_*.jpg
+
+# Data: only the kitchen knowledge graph is published
+data/*
+!data/graphs/
+
+# Pitch: keep scripts, docs, photos and stills; skip the Blender runtime and renders
+pitch/tools/
+pitch/video_output/
+pitch/blender_releases.html
+pitch/phase1_output/*.blend
+pitch/phase1_output/*.blend1
+pitch/phase1_output/*.glb
+
+# Windows reserved-name stray file
+nul
+
+# ---------------------------------------------------------------------------
+# OS / editor
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Stray runtime state written relative to scripts/
+scripts/artifacts/

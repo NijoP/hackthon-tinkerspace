@@ -1,0 +1,236 @@
+[
+  {
+    "name": "08_Clip_lever_jaw",
+    "assembly_group": "lever_jaw",
+    "dimensions_mm": [
+      14.949,
+      5.0,
+      78.6
+    ]
+  },
+  {
+    "name": "09_Clip_stem_jaw",
+    "assembly_group": "stem_jaw",
+    "dimensions_mm": [
+      14.949,
+      5.0,
+      74.5
+    ]
+  },
+  {
+    "name": "10_Ball_socket",
+    "assembly_group": "stem_jaw",
+    "dimensions_mm": [
+      10.6,
+      10.6,
+      5.8
+    ]
+  },
+  {
+    "name": "07a_Concealed_ball",
+    "assembly_group": "joint",
+    "dimensions_mm": [
+      6.9,
+      6.9,
+      6.9
+    ]
+  },
+  {
+    "name": "07b_Flared_joint_neck",
+    "assembly_group": "joint",
+    "dimensions_mm": [
+      15.6,
+      15.6,
+      7.4
+    ]
+  },
+  {
+    "name": "11_Green_rubber_band_four_turns",
+    "assembly_group": "rubber",
+    "dimensions_mm": [
+      13.781,
+      9.931,
+      10.786
+    ]
+  },
+  {
+    "name": "06_Ribbed_ring_body",
+    "assembly_group": "ring",
+    "dimensions_mm": [
+      29.7,
+      29.7,
+      9.3
+    ]
+  },
+  {
+    "name": "05_Thin_green_band",
+    "assembly_group": "flange",
+    "dimensions_mm": [
+      25.2,
+      25.2,
+      1.45
+    ]
+  },
+  {
+    "name": "04_White_disc_flange",
+    "assembly_group": "flange",
+    "dimensions_mm": [
+      26.6,
+      26.6,
+      2.05
+    ]
+  },
+  {
+    "name": "03a_Silver_foil_pouch",
+    "assembly_group": "battery",
+    "dimensions_mm": [
+      35.0,
+      23.0,
+      4.4
+    ]
+  },
+  {
+    "name": "03b_Amber_tape_wrap",
+    "assembly_group": "battery",
+    "dimensions_mm": [
+      5.905,
+      23.35,
+      4.75
+    ]
+  },
+  {
+    "name": "01a_Camera_housing",
+    "assembly_group": "housing",
+    "dimensions_mm": [
+      21.0,
+      14.0,
+      22.0
+    ]
+  },
+  {
+    "name": "01d_USB_C_metal_liner",
+    "assembly_group": "housing",
+    "dimensions_mm": [
+      8.25,
+      3.0,
+      1.523
+    ]
+  },
+  {
+    "name": "01e_USB_C_dark_recess",
+    "assembly_group": "housing",
+    "dimensions_mm": [
+      7.5,
+      2.25,
+      0.25
+    ]
+  },
+  {
+    "name": "01f_USB_C_contact_tongue",
+    "assembly_group": "housing",
+    "dimensions_mm": [
+      5.6,
+      0.65,
+      0.4
+    ]
+  },
+  {
+    "name": "01b_Raised_square_bezel",
+    "assembly_group": "housing",
+    "dimensions_mm": [
+      13.2,
+      3.3,
+      13.2
+    ]
+  },
+  {
+    "name": "01c_Black_lens_barrel",
+    "assembly_group": "housing",
+    "dimensions_mm": [
+      8.76,
+      2.7,
+      8.76
+    ]
+  },
+  {
+    "name": "01g_Optical_glass",
+    "assembly_group": "housing",
+    "dimensions_mm": [
+      7.3,
+      0.24,
+      7.3
+    ]
+  },
+  {
+    "name": "02a_Back_circuit_board",
+    "assembly_group": "board",
+    "dimensions_mm": [
+      12.5,
+      1.1,
+      24.0
+    ]
+  },
+  {
+    "name": "02b_Solder_pad_00",
+    "assembly_group": "board",
+    "dimensions_mm": [
+      1.25,
+      0.12,
+      1.8
+    ]
+  },
+  {
+    "name": "02b_Solder_pad_01",
+    "assembly_group": "board",
+    "dimensions_mm": [
+      1.25,
+      0.12,
+      1.8
+    ]
+  },
+  {
+    "name": "02b_Solder_pad_02",
+    "assembly_group": "board",
+    "dimensions_mm": [
+      1.25,
+      0.12,
+      1.8
+    ]
+  },
+  {
+    "name": "02c_Brown_battery_wire",
+    "assembly_group": "board",
+    "dimensions_mm": [
+      32.332,
+      13.562,
+      29.707
+    ]
+  },
+  {
+    "name": "02d_Black_battery_wire",
+    "assembly_group": "board",
+    "dimensions_mm": [
+      32.393,
+      12.521,
+      29.227
+    ]
+  },
+  {
+    "name": "02e_Antenna_coax",
+    "assembly_group": "board",
+    "dimensions_mm": [
+      33.772,
+      7.042,
+      17.29
+    ]
+  },
+  {
+    "name": "02f_Flexible_antenna_strip",
+    "assembly_group": "board",
+    "dimensions_mm": [
+      9.977,
+      3.215,
+      25.106
+    ]
+  }
+]

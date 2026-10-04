@@ -1,0 +1,691 @@
+{
+  "schema_version": "0.3",
+  "created_at": "2026-10-04T11:01:39",
+  "source_video": "WhatsApp Video 2026-10-03 at 22.46.42.mp4",
+  "method": "Claude vision review of 52 frames (every 1.5 s) fused with the faster-whisper narration transcript.",
+  "transcript": "artifacts\\transcripts\\kitchen_transcript.json",
+  "spatial_convention": "Facing the counter: left end is the corner nearest the door (switchboard, tissue box, dish rack); right end is the far corner under the wall fan (water bottle, pink cloth).",
+  "counter_order_left_to_right": [
+    "tissue box",
+    "dish rack",
+    "electric kettle",
+    "sugar jar",
+    "coffee jar",
+    "glass water jug",
+    "large water bottle",
+    "pink cloth"
+  ],
+  "relations_allowed": [
+    "LEFT_OF",
+    "RIGHT_OF",
+    "NEAR",
+    "NEXT_TO",
+    "ON",
+    "INSIDE",
+    "BEHIND",
+    "IN_FRONT_OF",
+    "SAME_ZONE"
+  ],
+  "routines": {
+    "make_coffee": [
+      {
+        "step": 1,
+        "say": "Take water from the glass water jug or the large water bottle.",
+        "objects": [
+          "glass water jug",
+          "large water bottle"
+        ],
+        "narration_t": 52.8
+      },
+      {
+        "step": 2,
+        "say": "Open the kettle lid.",
+        "objects": [
+          "electric kettle"
+        ],
+        "narration_t": 54.8
+      },
+      {
+        "step": 3,
+        "say": "Pour the water into the kettle and close it.",
+        "objects": [
+          "electric kettle"
+        ],
+        "narration_t": 56.9
+      },
+      {
+        "step": 4,
+        "say": "Turn the kettle on with the switch above the dish rack and let it heat.",
+        "objects": [
+          "kettle power switch"
+        ],
+        "narration_t": 58.9
+      },
+      {
+        "step": 5,
+        "say": "Take one glass from the lower shelf of the dish rack.",
+        "objects": [
+          "drinking glasses"
+        ],
+        "narration_t": 60.9
+      },
+      {
+        "step": 6,
+        "say": "Add coffee and sugar with the spoons in each jar, then mix.",
+        "objects": [
+          "coffee jar",
+          "sugar jar",
+          "spoons"
+        ],
+        "narration_t": 62.9
+      }
+    ]
+  },
+  "notes": [
+    "The narrated walkthrough demonstrates making coffee, not tea. Tea is recorded as unknown.",
+    "The transcript phrase 'two bottles and a mug' is a speech-recognition error; the video shows two jars (sugar and coffee)."
+  ],
+  "objects": [
+    {
+      "object_id": "obj_kettle",
+      "object_type": "kettle",
+      "semantic_label": "electric kettle",
+      "location": "on the counter, just right of the dish rack. It is a steel kettle with a black handle, plugged into the wall socket above the dish rack",
+      "relationships": [
+        {
+          "subject": "electric kettle",
+          "relation": "RIGHT_OF",
+          "object": "dish rack",
+          "confidence": 0.95,
+          "evidence_frame": "evidence_030.0s.jpg",
+          "source_timestamp": 30.0
+        },
+        {
+          "subject": "electric kettle",
+          "relation": "LEFT_OF",
+          "object": "sugar jar",
+          "confidence": 0.95,
+          "evidence_frame": "evidence_030.0s.jpg",
+          "source_timestamp": 30.0
+        },
+        {
+          "subject": "electric kettle",
+          "relation": "ON",
+          "object": "kitchen counter",
+          "confidence": 0.95,
+          "evidence_frame": "evidence_030.0s.jpg",
+          "source_timestamp": 30.0
+        }
+      ],
+      "confidence": 0.97,
+      "uncertainty_status": "confirmed",
+      "evidence_type": "visual+narration",
+      "evidence_frame": "evidence_030.0s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_030.0s.jpg",
+      "source_timestamp": 30.0,
+      "evidence_source": "claude-vision frame review + faster-whisper narration",
+      "evidence_text": "If you move here, we have the kettle. The kettle is connected to the power.",
+      "visual_evidence": "Stainless steel electric kettle with black handle and lid button on a black base, cord running to the socket above the dish rack."
+    },
+    {
+      "object_id": "obj_kettle_switch",
+      "object_type": "switch",
+      "semantic_label": "kettle power switch",
+      "location": "on the wall above the left end of the counter, behind the dish rack. Press the switch down to turn the kettle on",
+      "relationships": [
+        {
+          "subject": "kettle power switch",
+          "relation": "BEHIND",
+          "object": "dish rack",
+          "confidence": 0.9,
+          "evidence_frame": "evidence_033.0s.jpg",
+          "source_timestamp": 33.0
+        },
+        {
+          "subject": "kettle power switch",
+          "relation": "NEAR",
+          "object": "electric kettle",
+          "confidence": 0.9,
+          "evidence_frame": "evidence_033.0s.jpg",
+          "source_timestamp": 33.0
+        }
+      ],
+      "confidence": 0.9,
+      "uncertainty_status": "confirmed",
+      "evidence_type": "visual+narration",
+      "evidence_frame": "evidence_033.0s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_033.0s.jpg",
+      "source_timestamp": 33.0,
+      "evidence_source": "claude-vision frame review + faster-whisper narration",
+      "evidence_text": "Connected to the power and turn down and this makes it turn on.",
+      "visual_evidence": "Wall switchboard with the kettle plug; the narrator presses the switch beside the plug."
+    },
+    {
+      "object_id": "obj_sugar_jar",
+      "object_type": "sugar",
+      "semantic_label": "sugar jar",
+      "location": "on the counter, right of the kettle. It is the first of two jars, clear with a brown lid, holding white sugar with a spoon inside",
+      "relationships": [
+        {
+          "subject": "sugar jar",
+          "relation": "RIGHT_OF",
+          "object": "electric kettle",
+          "confidence": 0.95,
+          "evidence_frame": "evidence_043.5s.jpg",
+          "source_timestamp": 43.5
+        },
+        {
+          "subject": "sugar jar",
+          "relation": "LEFT_OF",
+          "object": "coffee jar",
+          "confidence": 0.95,
+          "evidence_frame": "evidence_043.5s.jpg",
+          "source_timestamp": 43.5
+        },
+        {
+          "subject": "sugar jar",
+          "relation": "NEXT_TO",
+          "object": "coffee jar",
+          "confidence": 0.95,
+          "evidence_frame": "evidence_043.5s.jpg",
+          "source_timestamp": 43.5
+        }
+      ],
+      "confidence": 0.95,
+      "uncertainty_status": "confirmed",
+      "evidence_type": "visual+narration",
+      "evidence_frame": "evidence_043.5s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_043.5s.jpg",
+      "source_timestamp": 43.5,
+      "evidence_source": "claude-vision frame review + faster-whisper narration",
+      "evidence_text": "This is sugar.",
+      "visual_evidence": "Clear plastic jar, brown screw lid, white granulated sugar, a steel spoon standing inside."
+    },
+    {
+      "object_id": "obj_coffee_jar",
+      "object_type": "coffee",
+      "semantic_label": "coffee jar",
+      "location": "on the counter, right of the sugar jar. It is the second jar with a brown lid, holding dark coffee powder with a spoon inside",
+      "relationships": [
+        {
+          "subject": "coffee jar",
+          "relation": "RIGHT_OF",
+          "object": "sugar jar",
+          "confidence": 0.95,
+          "evidence_frame": "evidence_046.5s.jpg",
+          "source_timestamp": 46.5
+        },
+        {
+          "subject": "coffee jar",
+          "relation": "LEFT_OF",
+          "object": "glass water jug",
+          "confidence": 0.95,
+          "evidence_frame": "evidence_046.5s.jpg",
+          "source_timestamp": 46.5
+        }
+      ],
+      "confidence": 0.95,
+      "uncertainty_status": "confirmed",
+      "evidence_type": "visual+narration",
+      "evidence_frame": "evidence_046.5s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_046.5s.jpg",
+      "source_timestamp": 46.5,
+      "evidence_source": "claude-vision frame review + faster-whisper narration",
+      "evidence_text": "You can see this is coffee.",
+      "visual_evidence": "Clear jar with brown lid, filled with dark brown coffee powder, a spoon inside."
+    },
+    {
+      "object_id": "obj_spoon",
+      "object_type": "spoon",
+      "semantic_label": "spoons",
+      "location": "inside the jars. One spoon is in the sugar jar and one is in the coffee jar",
+      "relationships": [
+        {
+          "subject": "spoons",
+          "relation": "INSIDE",
+          "object": "sugar jar",
+          "confidence": 0.85,
+          "evidence_frame": "evidence_043.5s.jpg",
+          "source_timestamp": 43.5
+        },
+        {
+          "subject": "spoons",
+          "relation": "INSIDE",
+          "object": "coffee jar",
+          "confidence": 0.85,
+          "evidence_frame": "evidence_043.5s.jpg",
+          "source_timestamp": 43.5
+        }
+      ],
+      "confidence": 0.85,
+      "uncertainty_status": "visual",
+      "evidence_type": "visual",
+      "evidence_frame": "evidence_043.5s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_043.5s.jpg",
+      "source_timestamp": 43.5,
+      "evidence_source": "claude-vision frame review",
+      "evidence_text": null,
+      "visual_evidence": "A steel spoon is visible inside the sugar jar when lifted at 43.5 s, and inside the coffee jar at 46.5 s."
+    },
+    {
+      "object_id": "obj_water_jug",
+      "object_type": "jug",
+      "semantic_label": "glass water jug",
+      "location": "on the counter, right of the coffee jar. It is a clear glass jug with a handle and a lid, used for water",
+      "relationships": [
+        {
+          "subject": "glass water jug",
+          "relation": "RIGHT_OF",
+          "object": "coffee jar",
+          "confidence": 0.88,
+          "evidence_frame": "evidence_051.0s.jpg",
+          "source_timestamp": 51.0
+        },
+        {
+          "subject": "glass water jug",
+          "relation": "LEFT_OF",
+          "object": "large water bottle",
+          "confidence": 0.88,
+          "evidence_frame": "evidence_051.0s.jpg",
+          "source_timestamp": 51.0
+        }
+      ],
+      "confidence": 0.88,
+      "uncertainty_status": "confirmed",
+      "evidence_type": "visual+narration",
+      "evidence_frame": "evidence_051.0s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_051.0s.jpg",
+      "source_timestamp": 51.0,
+      "evidence_source": "claude-vision frame review + faster-whisper narration",
+      "evidence_text": "It will be filled with water. When you are making coffee you take water.",
+      "visual_evidence": "Clear patterned glass jug with handle and lid; the narrator lifts it while talking about water."
+    },
+    {
+      "object_id": "obj_water_bottle",
+      "object_type": "water",
+      "semantic_label": "large water bottle",
+      "location": "on the counter toward the right end, against the wall, right of the glass jug. It is a big clear bottle with a green cap and handle, for more drinking water",
+      "relationships": [
+        {
+          "subject": "large water bottle",
+          "relation": "RIGHT_OF",
+          "object": "glass water jug",
+          "confidence": 0.9,
+          "evidence_frame": "evidence_048.0s.jpg",
+          "source_timestamp": 48.0
+        },
+        {
+          "subject": "large water bottle",
+          "relation": "NEAR",
+          "object": "pink cloth",
+          "confidence": 0.9,
+          "evidence_frame": "evidence_048.0s.jpg",
+          "source_timestamp": 48.0
+        }
+      ],
+      "confidence": 0.9,
+      "uncertainty_status": "confirmed",
+      "evidence_type": "visual+narration",
+      "evidence_frame": "evidence_048.0s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_048.0s.jpg",
+      "source_timestamp": 48.0,
+      "evidence_source": "claude-vision frame review + faster-whisper narration",
+      "evidence_text": "More water there.",
+      "visual_evidence": "Large clear plastic water bottle, about five litres, green cap with a carry handle."
+    },
+    {
+      "object_id": "obj_dish_rack",
+      "object_type": "dish rack",
+      "semantic_label": "dish rack",
+      "location": "on the counter at the left end, between the tissue box and the kettle",
+      "relationships": [
+        {
+          "subject": "dish rack",
+          "relation": "LEFT_OF",
+          "object": "electric kettle",
+          "confidence": 0.95,
+          "evidence_frame": "evidence_019.5s.jpg",
+          "source_timestamp": 19.5
+        },
+        {
+          "subject": "dish rack",
+          "relation": "RIGHT_OF",
+          "object": "tissue box",
+          "confidence": 0.95,
+          "evidence_frame": "evidence_019.5s.jpg",
+          "source_timestamp": 19.5
+        },
+        {
+          "subject": "dish rack",
+          "relation": "ON",
+          "object": "kitchen counter",
+          "confidence": 0.95,
+          "evidence_frame": "evidence_019.5s.jpg",
+          "source_timestamp": 19.5
+        }
+      ],
+      "confidence": 0.95,
+      "uncertainty_status": "visual",
+      "evidence_type": "visual",
+      "evidence_frame": "evidence_019.5s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_019.5s.jpg",
+      "source_timestamp": 19.5,
+      "evidence_source": "claude-vision frame review",
+      "evidence_text": null,
+      "visual_evidence": "Black metal two-tier dish rack: plates upright on top, glasses and mugs below, green-handled cutlery holder on its right side."
+    },
+    {
+      "object_id": "obj_glass_cup",
+      "object_type": "glass",
+      "semantic_label": "drinking glasses",
+      "location": "in the dish rack, on the lower shelf at the left side. There are about four clear glasses, upside down",
+      "relationships": [
+        {
+          "subject": "drinking glasses",
+          "relation": "INSIDE",
+          "object": "dish rack",
+          "confidence": 0.93,
+          "evidence_frame": "evidence_025.5s.jpg",
+          "source_timestamp": 25.5
+        },
+        {
+          "subject": "drinking glasses",
+          "relation": "LEFT_OF",
+          "object": "black mugs",
+          "confidence": 0.93,
+          "evidence_frame": "evidence_025.5s.jpg",
+          "source_timestamp": 25.5
+        }
+      ],
+      "confidence": 0.93,
+      "uncertainty_status": "confirmed",
+      "evidence_type": "visual+narration",
+      "evidence_frame": "evidence_025.5s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_025.5s.jpg",
+      "source_timestamp": 25.5,
+      "evidence_source": "claude-vision frame review + faster-whisper narration",
+      "evidence_text": "Here you can see we can find glasses here. We'll be using one of these glasses for making coffee.",
+      "visual_evidence": "Clear drinking glasses on the lower tier of the dish rack, left of the black mugs. At 63 s one glass is taken out and placed in front of the kettle."
+    },
+    {
+      "object_id": "obj_mug_cup",
+      "object_type": "mug",
+      "semantic_label": "black mugs",
+      "location": "in the dish rack, on the lower shelf at the right side, next to the glasses",
+      "relationships": [
+        {
+          "subject": "black mugs",
+          "relation": "INSIDE",
+          "object": "dish rack",
+          "confidence": 0.9,
+          "evidence_frame": "evidence_022.5s.jpg",
+          "source_timestamp": 22.5
+        },
+        {
+          "subject": "black mugs",
+          "relation": "RIGHT_OF",
+          "object": "drinking glasses",
+          "confidence": 0.9,
+          "evidence_frame": "evidence_022.5s.jpg",
+          "source_timestamp": 22.5
+        }
+      ],
+      "confidence": 0.9,
+      "uncertainty_status": "visual",
+      "evidence_type": "visual",
+      "evidence_frame": "evidence_022.5s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_022.5s.jpg",
+      "source_timestamp": 22.5,
+      "evidence_source": "claude-vision frame review",
+      "evidence_text": null,
+      "visual_evidence": "Several black ceramic mugs with a light rim on the lower tier of the dish rack."
+    },
+    {
+      "object_id": "obj_plates",
+      "object_type": "plate",
+      "semantic_label": "white plates",
+      "location": "standing upright on the top shelf of the dish rack",
+      "relationships": [
+        {
+          "subject": "white plates",
+          "relation": "ON",
+          "object": "dish rack",
+          "confidence": 0.92,
+          "evidence_frame": "evidence_019.5s.jpg",
+          "source_timestamp": 19.5
+        }
+      ],
+      "confidence": 0.92,
+      "uncertainty_status": "visual",
+      "evidence_type": "visual",
+      "evidence_frame": "evidence_019.5s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_019.5s.jpg",
+      "source_timestamp": 19.5,
+      "evidence_source": "claude-vision frame review",
+      "evidence_text": null,
+      "visual_evidence": "Five or six white plates standing in the top tier of the dish rack."
+    },
+    {
+      "object_id": "obj_tissues",
+      "object_type": "tissues",
+      "semantic_label": "tissue box",
+      "location": "on the counter at the far left end, in the corner against the wall, left of the dish rack",
+      "relationships": [
+        {
+          "subject": "tissue box",
+          "relation": "LEFT_OF",
+          "object": "dish rack",
+          "confidence": 0.92,
+          "evidence_frame": "evidence_028.5s.jpg",
+          "source_timestamp": 28.5
+        },
+        {
+          "subject": "tissue box",
+          "relation": "ON",
+          "object": "kitchen counter",
+          "confidence": 0.92,
+          "evidence_frame": "evidence_028.5s.jpg",
+          "source_timestamp": 28.5
+        }
+      ],
+      "confidence": 0.92,
+      "uncertainty_status": "confirmed",
+      "evidence_type": "visual+narration",
+      "evidence_frame": "evidence_028.5s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_028.5s.jpg",
+      "source_timestamp": 28.5,
+      "evidence_source": "claude-vision frame review + faster-whisper narration",
+      "evidence_text": "You can use tissues here.",
+      "visual_evidence": "Colourful printed tissue box with a tissue pulled up, in the left corner of the counter."
+    },
+    {
+      "object_id": "obj_pink_cloth",
+      "object_type": "cloth",
+      "semantic_label": "pink cloth",
+      "location": "on the counter at the far right end, in the corner",
+      "relationships": [
+        {
+          "subject": "pink cloth",
+          "relation": "NEAR",
+          "object": "large water bottle",
+          "confidence": 0.85,
+          "evidence_frame": "evidence_010.5s.jpg",
+          "source_timestamp": 10.5
+        }
+      ],
+      "confidence": 0.85,
+      "uncertainty_status": "visual",
+      "evidence_type": "visual",
+      "evidence_frame": "evidence_010.5s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_010.5s.jpg",
+      "source_timestamp": 10.5,
+      "evidence_source": "claude-vision frame review",
+      "evidence_text": null,
+      "visual_evidence": "Pink or magenta hand cloth lying on the right end of the counter."
+    },
+    {
+      "object_id": "obj_small_jar",
+      "object_type": "jar",
+      "semantic_label": "small brown jar",
+      "location": "on the counter at the right end, behind the water bottle near the pink cloth. Its contents were not shown",
+      "relationships": [
+        {
+          "subject": "small brown jar",
+          "relation": "BEHIND",
+          "object": "large water bottle",
+          "confidence": 0.55,
+          "evidence_frame": "evidence_010.5s.jpg",
+          "source_timestamp": 10.5
+        }
+      ],
+      "confidence": 0.55,
+      "uncertainty_status": "uncertain",
+      "evidence_type": "visual",
+      "evidence_frame": "evidence_010.5s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_010.5s.jpg",
+      "source_timestamp": 10.5,
+      "evidence_source": "claude-vision frame review",
+      "evidence_text": null,
+      "visual_evidence": "A third brown container partly hidden behind the water bottle; never opened or named."
+    },
+    {
+      "object_id": "obj_counter",
+      "object_type": "counter",
+      "semantic_label": "kitchen counter",
+      "location": "along the left wall as you walk in. It has a black stone top with white cabinets below",
+      "relationships": [],
+      "confidence": 0.97,
+      "uncertainty_status": "visual",
+      "evidence_type": "visual",
+      "evidence_frame": "evidence_006.0s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_006.0s.jpg",
+      "source_timestamp": 6.0,
+      "evidence_source": "claude-vision frame review",
+      "evidence_text": null,
+      "visual_evidence": "Long black granite counter with white cabinet doors underneath."
+    },
+    {
+      "object_id": "obj_cupboard",
+      "object_type": "cupboard",
+      "semantic_label": "cupboard",
+      "location": "below the counter. These are the white cabinet doors under the counter top",
+      "relationships": [
+        {
+          "subject": "cupboard",
+          "relation": "SAME_ZONE",
+          "object": "kitchen counter",
+          "confidence": 0.7,
+          "evidence_frame": "evidence_006.0s.jpg",
+          "source_timestamp": 6.0
+        }
+      ],
+      "confidence": 0.7,
+      "uncertainty_status": "uncertain",
+      "evidence_type": "visual",
+      "evidence_frame": "evidence_006.0s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_006.0s.jpg",
+      "source_timestamp": 6.0,
+      "evidence_source": "claude-vision frame review + faster-whisper narration",
+      "evidence_text": "As you can see, there is a cupboard in this area.",
+      "visual_evidence": "White under-counter cabinets are the only cupboards visible while the narrator says this."
+    },
+    {
+      "object_id": "obj_wall_fan",
+      "object_type": "fan",
+      "semantic_label": "wall fan",
+      "location": "high on the back wall, above the right end of the counter",
+      "relationships": [],
+      "confidence": 0.93,
+      "uncertainty_status": "visual",
+      "evidence_type": "visual",
+      "evidence_frame": "evidence_015.0s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_015.0s.jpg",
+      "source_timestamp": 15.0,
+      "evidence_source": "claude-vision frame review",
+      "evidence_text": null,
+      "visual_evidence": "White wall-mounted fan with a switch box below it."
+    },
+    {
+      "object_id": "obj_camera_mount",
+      "object_type": "camera position",
+      "semantic_label": "camera mounting spot",
+      "location": "planned to be clipped high near the wall fan, pointing down at the counter",
+      "relationships": [
+        {
+          "subject": "camera mounting spot",
+          "relation": "NEAR",
+          "object": "wall fan",
+          "confidence": 0.6,
+          "evidence_frame": "evidence_015.0s.jpg",
+          "source_timestamp": 15.0
+        }
+      ],
+      "confidence": 0.6,
+      "uncertainty_status": "uncertain",
+      "evidence_type": "visual",
+      "evidence_frame": "evidence_015.0s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_015.0s.jpg",
+      "source_timestamp": 15.0,
+      "evidence_source": "claude-vision frame review + faster-whisper narration",
+      "evidence_text": "We'll be clipping the camera over there somewhere pointing downwards. Camera over there.",
+      "visual_evidence": "The narrator points up toward the wall near the fan while describing the camera position."
+    },
+    {
+      "object_id": "obj_chairs",
+      "object_type": "chair",
+      "semantic_label": "two black chairs",
+      "location": "on the other side of the room from the counter, near the back wall",
+      "relationships": [],
+      "confidence": 0.9,
+      "uncertainty_status": "confirmed",
+      "evidence_type": "visual+narration",
+      "evidence_frame": "evidence_073.5s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_073.5s.jpg",
+      "source_timestamp": 73.5,
+      "evidence_source": "claude-vision frame review + faster-whisper narration",
+      "evidence_text": "Chair if in case.",
+      "visual_evidence": "Two black mesh chairs facing into the room; one has a brown paper bag on it."
+    },
+    {
+      "object_id": "obj_paper_bag",
+      "object_type": "bag",
+      "semantic_label": "brown paper bag",
+      "location": "on the seat of the chair nearest the door, with a food box inside",
+      "relationships": [
+        {
+          "subject": "brown paper bag",
+          "relation": "ON",
+          "object": "two black chairs",
+          "confidence": 0.75,
+          "evidence_frame": "evidence_073.5s.jpg",
+          "source_timestamp": 73.5
+        }
+      ],
+      "confidence": 0.75,
+      "uncertainty_status": "visual",
+      "evidence_type": "visual",
+      "evidence_frame": "evidence_073.5s.jpg",
+      "evidence_image": "/kitchen-evidence/evidence_073.5s.jpg",
+      "source_timestamp": 73.5,
+      "evidence_source": "claude-vision frame review",
+      "evidence_text": null,
+      "visual_evidence": "Brown paper bag holding a white food container, resting on a chair."
+    },
+    {
+      "object_id": "obj_tea",
+      "object_type": "tea",
+      "semantic_label": "tea",
+      "location": "unknown. Tea was not shown in the walkthrough; the routine shown is for coffee",
+      "relationships": [],
+      "confidence": 0.0,
+      "uncertainty_status": "unknown",
+      "evidence_type": "none",
+      "evidence_frame": null,
+      "evidence_image": null,
+      "source_timestamp": null,
+      "evidence_source": "claude-vision frame review",
+      "evidence_text": null,
+      "visual_evidence": "No tea, tea bags or tea leaves appear in any sampled frame."
+    }
+  ]
+}
