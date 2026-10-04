@@ -1,4 +1,4 @@
-# Kitchen Memory
+# SUPPERMONKEY
 
 **A voice-first kitchen assistant for a visually impaired person.** It learns a kitchen from one narrated walkthrough video, stores what it saw as a spatial Kitchen Knowledge Graph, watches the room through live cameras, and answers out loud: *"Where is the sugar?"* → *"The sugar jar is on the counter, right of the kettle. It is the first of two jars, clear with a brown lid, with a spoon inside."*
 
